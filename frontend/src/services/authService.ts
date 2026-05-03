@@ -13,6 +13,7 @@ export type AuthUser = {
   phone?: string | null
   status: string
   preferred_locale: string
+  email_verified_at?: string | null
   role?: Role | null
 }
 
@@ -36,6 +37,22 @@ export type AuthResponse = {
   message?: string
 }
 
+export type OtpPayload = {
+  email: string
+  otp_code: string
+}
+
+export type ForgotPasswordPayload = {
+  email: string
+}
+
+export type ResetPasswordPayload = {
+  email: string
+  token: string
+  password: string
+  password_confirmation: string
+}
+
 export const authService = {
   login: async (payload: LoginPayload) => {
     const { data } = await api.post<AuthResponse>('/auth/login', payload)
@@ -47,6 +64,22 @@ export const authService = {
   },
   me: async () => {
     const { data } = await api.get<AuthUser>('/auth/me')
+    return data
+  },
+  verifyOtp: async (payload: OtpPayload) => {
+    const { data } = await api.post<{ message: string; user: AuthUser }>('/auth/verify-otp', payload)
+    return data
+  },
+  resendOtp: async (payload: ForgotPasswordPayload) => {
+    const { data } = await api.post<{ message: string }>('/auth/resend-otp', payload)
+    return data
+  },
+  forgotPassword: async (payload: ForgotPasswordPayload) => {
+    const { data } = await api.post<{ message: string }>('/auth/forgot-password', payload)
+    return data
+  },
+  resetPassword: async (payload: ResetPasswordPayload) => {
+    const { data } = await api.post<{ message: string }>('/auth/reset-password', payload)
     return data
   },
   logout: async () => {

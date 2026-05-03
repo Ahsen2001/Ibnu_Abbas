@@ -8,8 +8,11 @@ import TeacherLayout from '../layouts/TeacherLayout'
 import AdminDashboard from '../pages/admin/AdminDashboard'
 import ModulePage from '../pages/admin/ModulePage'
 import ApplicantApplicationsPage from '../pages/applicant/ApplicantApplicationsPage'
+import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage'
 import LoginPage from '../pages/auth/LoginPage'
 import RegisterPage from '../pages/auth/RegisterPage'
+import ResetPasswordPage from '../pages/auth/ResetPasswordPage'
+import VerifyOtpPage from '../pages/auth/VerifyOtpPage'
 import HomePage from '../pages/public/HomePage'
 import NotFoundPage from '../pages/public/NotFoundPage'
 import UnauthorizedPage from '../pages/public/UnauthorizedPage'
@@ -25,6 +28,9 @@ function AppRoutes() {
         <Route index element={<HomePage />} />
         <Route element={<LoginPage />} path="login" />
         <Route element={<RegisterPage />} path="register" />
+        <Route element={<VerifyOtpPage />} path="verify-otp" />
+        <Route element={<ForgotPasswordPage />} path="forgot-password" />
+        <Route element={<ResetPasswordPage />} path="reset-password" />
       </Route>
 
       <Route element={<UnauthorizedPage />} path="unauthorized" />

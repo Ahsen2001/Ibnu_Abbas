@@ -1,19 +1,19 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { LockKeyhole, Mail, Phone, UserRound } from 'lucide-react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { KeyRound, LockKeyhole, Mail } from 'lucide-react'
 import AuthCard from '../../components/AuthCard'
 import FormField from '../../components/FormField'
 import { useAuth } from '../../context/AuthContext'
 import { getApiErrorMessage } from '../../services/errorService'
 
-function RegisterPage() {
-  const { register } = useAuth()
+function ResetPasswordPage() {
+  const { resetPassword } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [form, setForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
+    email: searchParams.get('email') ?? '',
+    token: '',
     password: '',
     passwordConfirmation: '',
   })
@@ -21,13 +21,14 @@ function RegisterPage() {
   const [formError, setFormError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const isReady = useMemo(() => Boolean(form.email.trim() && form.token.trim() && form.password), [form])
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-
     const nextFieldErrors: Record<string, string> = {}
 
-    if (!form.name.trim()) nextFieldErrors.name = 'Full name is required.'
     if (!form.email.trim()) nextFieldErrors.email = 'Email is required.'
+    if (!form.token.trim()) nextFieldErrors.token = 'Reset token is required.'
     if (form.password.length < 8) nextFieldErrors.password = 'Password must be at least 8 characters.'
     if (form.passwordConfirmation !== form.password) nextFieldErrors.passwordConfirmation = 'Passwords do not match.'
 
@@ -41,37 +42,24 @@ function RegisterPage() {
     setIsSubmitting(true)
 
     try {
-      const redirectPath = await register({
-        name: form.name,
+      await resetPassword({
         email: form.email,
-        phone: form.phone || undefined,
-        preferred_locale: 'en',
+        token: form.token,
         password: form.password,
         password_confirmation: form.passwordConfirmation,
       })
-
-      navigate(`${redirectPath}?email=${encodeURIComponent(form.email)}`, { replace: true })
+      navigate('/login', { replace: true })
     } catch (error) {
-      setFormError(getApiErrorMessage(error, 'Registration failed. Please review your details.'))
+      setFormError(getApiErrorMessage(error, 'Unable to reset password.'))
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <section className="mx-auto flex min-h-[calc(100vh-81px)] max-w-xl items-center px-4 py-10">
-      <AuthCard description="Create an applicant account to start an application." title="Admission Registration">
-        <form className="grid gap-4 sm:grid-cols-2" noValidate onSubmit={handleSubmit}>
-          <div className="sm:col-span-2">
-            <FormField
-              error={fieldErrors.name}
-              label="Full name"
-              onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-              placeholder="Enter your full name"
-              suffix={<UserRound size={16} />}
-              value={form.name}
-            />
-          </div>
+    <section className="mx-auto flex min-h-[calc(100vh-81px)] max-w-lg items-center px-4 py-10">
+      <AuthCard description="Enter the reset token sent by email and choose a new password." title="Reset Password">
+        <form className="grid gap-4" noValidate onSubmit={handleSubmit}>
           <FormField
             error={fieldErrors.email}
             label="Email"
@@ -82,39 +70,40 @@ function RegisterPage() {
             value={form.email}
           />
           <FormField
-            error={fieldErrors.phone}
-            label="Phone"
-            onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
-            placeholder="+94..."
-            suffix={<Phone size={16} />}
-            value={form.phone}
+            error={fieldErrors.token}
+            hint="Paste the reset token from your email."
+            label="Reset token"
+            onChange={(event) => setForm((current) => ({ ...current, token: event.target.value }))}
+            placeholder="Enter token"
+            suffix={<KeyRound size={16} />}
+            value={form.token}
           />
           <FormField
             error={fieldErrors.password}
-            label="Password"
+            label="New password"
             onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))}
-            placeholder="Create a secure password"
+            placeholder="New password"
             suffix={<LockKeyhole size={16} />}
             type="password"
             value={form.password}
           />
           <FormField
             error={fieldErrors.passwordConfirmation}
-            label="Confirm password"
+            label="Confirm new password"
             onChange={(event) => setForm((current) => ({ ...current, passwordConfirmation: event.target.value }))}
-            placeholder="Repeat your password"
+            placeholder="Repeat new password"
             suffix={<LockKeyhole size={16} />}
             type="password"
             value={form.passwordConfirmation}
           />
-          {formError ? <p className="sm:col-span-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{formError}</p> : null}
-          <button className="btn-primary sm:col-span-2" disabled={isSubmitting} type="submit">
-            {isSubmitting ? 'Creating account...' : 'Create Account'}
+          {formError ? <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{formError}</p> : null}
+          <button className="btn-primary w-full" disabled={!isReady || isSubmitting} type="submit">
+            {isSubmitting ? 'Resetting...' : 'Reset Password'}
           </button>
-          <p className="sm:col-span-2 text-sm text-slate-500">
-            Already registered?{' '}
+          <p className="text-sm text-slate-500">
+            Back to{' '}
             <Link className="font-medium text-college-green hover:text-teal-800" to="/login">
-              Login here
+              login
             </Link>
           </p>
         </form>
@@ -123,4 +112,4 @@ function RegisterPage() {
   )
 }
 
-export default RegisterPage
+export default ResetPasswordPage
