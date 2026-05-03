@@ -10,21 +10,25 @@ return new class extends Migration
     {
         Schema::create('teachers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('department_id')->nullable()->constrained('departments')->nullOnDelete();
-            $table->string('employee_no')->unique();
+            $table->foreignId('user_id')->nullable()->unique()->constrained('users')->nullOnDelete();
+            $table->string('employee_id')->unique();
             $table->string('full_name');
+            $table->date('date_of_birth')->nullable();
+            $table->enum('gender', ['male', 'female'])->nullable();
             $table->string('qualification')->nullable();
             $table->string('specialization')->nullable();
+            $table->string('email')->nullable()->index();
             $table->string('phone')->nullable()->index();
-            $table->string('address')->nullable();
-            $table->date('joined_at')->nullable();
-            $table->string('status')->default('active')->index();
+            $table->text('address')->nullable();
+            $table->date('joining_date')->nullable()->index();
+            $table->enum('department', ['shareea', 'hifl', 'both'])->default('shareea')->index();
+            $table->enum('status', ['active', 'inactive', 'on_leave'])->default('active')->index();
+            $table->string('photo_path')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['department_id', 'status']);
-            $table->index(['user_id', 'employee_no']);
+            $table->index(['department', 'status']);
+            $table->index(['user_id', 'employee_id']);
         });
     }
 

@@ -8,6 +8,9 @@ import TeacherLayout from '../layouts/TeacherLayout'
 import AdminDashboard from '../pages/admin/AdminDashboard'
 import ModulePage from '../pages/admin/ModulePage'
 import ApplicantApplicationsPage from '../pages/applicant/ApplicantApplicationsPage'
+import AttendanceDashboard from '../pages/attendance/AttendanceDashboard'
+import AttendanceReport from '../pages/attendance/AttendanceReport'
+import BulkAttendance from '../pages/attendance/BulkAttendance'
 import AdminApplicationList from '../pages/applications/AdminApplicationList'
 import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage'
 import LoginPage from '../pages/auth/LoginPage'
@@ -19,6 +22,7 @@ import NotFoundPage from '../pages/public/NotFoundPage'
 import UnauthorizedPage from '../pages/public/UnauthorizedPage'
 import StudentDashboard from '../pages/student/StudentDashboard'
 import StudentList from '../pages/students/StudentList'
+import TeacherList from '../pages/teachers/TeacherList'
 import TeacherDashboard from '../pages/teacher/TeacherDashboard'
 
 const adminRoles = ['super_admin', 'admin_staff']
@@ -44,7 +48,9 @@ function AppRoutes() {
             <Route element={<ModulePage description="Manage user accounts, assigned roles, account status, and portal access." title="Users" />} path="users" />
             <Route element={<AdminApplicationList />} path="applications" />
             <Route element={<StudentList />} path="students" />
-            <Route element={<ModulePage description="Maintain teacher profiles, department assignment, and teaching responsibilities." title="Teachers" />} path="teachers" />
+            <Route element={<TeacherList />} path="teachers" />
+            <Route element={<AttendanceDashboard />} path="attendance" />
+            <Route element={<AttendanceReport />} path="attendance/report" />
             <Route element={<ModulePage description="Track Shareea subjects, exams, marks, grades, and academic progression." title="Shareea Records" />} path="shareea" />
             <Route element={<ModulePage description="Track daily sabaq, revision, memorized pages, and completion percentage." title="Hifl Progress" />} path="hifl" />
             <Route element={<ModulePage description="Publish notices, interview lists, updates, and PDF-linked announcements." title="Announcements" />} path="announcements" />
@@ -63,6 +69,7 @@ function AppRoutes() {
           <Route element={<TeacherLayout />} path="teacher">
             <Route index element={<TeacherDashboard />} />
             <Route element={<ModulePage description="Teacher view for assigned student lookup and progress review." title="Assigned Students" />} path="students" />
+            <Route element={<BulkAttendance />} path="attendance" />
             <Route element={<ModulePage description="Teacher workspace for Shareea record entry and assessment tracking." title="Shareea Records" />} path="shareea" />
             <Route element={<ModulePage description="Teacher workspace for Hifl sabaq and revision tracking." title="Hifl Progress" />} path="hifl" />
           </Route>

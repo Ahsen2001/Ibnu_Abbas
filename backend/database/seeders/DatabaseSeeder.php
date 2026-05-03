@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Department;
 use App\Models\Role;
+use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -40,6 +41,23 @@ class DatabaseSeeder extends Seeder
             ['code' => 'HIFL'],
             ['name' => 'Hifl Program', 'type' => 'hifl', 'description' => 'Quran memorization and revision stream.']
         );
+
+        collect([
+            ['code' => 'SHR-FIQH-01', 'name' => 'Fiqh', 'department' => 'shareea'],
+            ['code' => 'SHR-HADITH-01', 'name' => 'Hadith', 'department' => 'shareea'],
+            ['code' => 'SHR-TAFSIR-01', 'name' => 'Tafsir', 'department' => 'shareea'],
+            ['code' => 'HIFL-SABAQ-01', 'name' => 'Sabaq', 'department' => 'hifl'],
+            ['code' => 'HIFL-REV-01', 'name' => 'Revision', 'department' => 'hifl'],
+        ])->each(function (array $subject) {
+            Subject::firstOrCreate(
+                ['code' => $subject['code']],
+                [
+                    'name' => $subject['name'],
+                    'department' => $subject['department'],
+                    'is_active' => true,
+                ]
+            );
+        });
 
         User::firstOrCreate(['email' => 'admin@ibnuabbas.test'], [
             'name' => 'System Administrator',

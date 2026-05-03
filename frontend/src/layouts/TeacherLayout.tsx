@@ -1,4 +1,4 @@
-import { BookOpen, GraduationCap, LayoutDashboard, Users } from 'lucide-react'
+import { BookOpen, ClipboardCheck, GraduationCap, LayoutDashboard, Users } from 'lucide-react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import { useAuth } from '../context/AuthContext'
@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext'
 const teacherItems = [
   { label: 'Dashboard', to: '/teacher', icon: LayoutDashboard },
   { label: 'Students', to: '/teacher/students', icon: Users },
+  { label: 'Attendance', to: '/teacher/attendance', icon: ClipboardCheck },
   { label: 'Shareea', to: '/teacher/shareea', icon: BookOpen },
   { label: 'Hifl', to: '/teacher/hifl', icon: GraduationCap },
 ]

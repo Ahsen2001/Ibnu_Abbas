@@ -1,4 +1,4 @@
-import { Bell, BookOpen, FileText, GraduationCap, LayoutDashboard, Megaphone, Users } from 'lucide-react'
+import { Bell, BookOpen, ClipboardCheck, FileText, GraduationCap, LayoutDashboard, Megaphone, Users } from 'lucide-react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import { useAuth } from '../context/AuthContext'
@@ -9,6 +9,7 @@ const adminItems = [
   { label: 'Applications', to: '/admin/applications', icon: FileText },
   { label: 'Students', to: '/admin/students', icon: GraduationCap },
   { label: 'Teachers', to: '/admin/teachers', icon: Users },
+  { label: 'Attendance', to: '/admin/attendance', icon: ClipboardCheck },
   { label: 'Shareea', to: '/admin/shareea', icon: BookOpen },
   { label: 'Hifl', to: '/admin/hifl', icon: Bell },
   { label: 'Announcements', to: '/admin/announcements', icon: Megaphone },

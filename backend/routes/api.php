@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AnnouncementController;
+use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\ApplicationController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Api\ShareeaController;
 use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\TeacherController;
 use App\Http\Controllers\Api\UserController;
+use App\Models\Subject;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn () => ['status' => 'ok', 'app' => 'Ibnu Abbas Arabic College API']);
@@ -35,7 +37,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index']);
         Route::apiResource('users', UserController::class);
         Route::apiResource('departments', DepartmentController::class);
-        Route::apiResource('teachers', TeacherController::class);
         Route::apiResource('shareea-records', ShareeaController::class)->parameters([
             'shareea-records' => 'shareea',
         ]);
@@ -49,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/applications', [ApplicationController::class, 'index']);
         Route::patch('/applications/{application}/status', [ApplicationController::class, 'updateStatus']);
         Route::post('/applications/{application}/interview', [ApplicationController::class, 'scheduleInterview']);
+        Route::get('/subjects', fn () => Subject::query()->where('is_active', true)->orderBy('name')->get());
         Route::get('/students', [StudentController::class, 'index']);
         Route::post('/students', [StudentController::class, 'store']);
         Route::get('/students/search', [StudentController::class, 'search']);
@@ -56,6 +58,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/students/{student}', [StudentController::class, 'update']);
         Route::delete('/students/{student}', [StudentController::class, 'destroy']);
         Route::get('/students/{student}/id-card', [StudentController::class, 'generateIdCard']);
+        Route::get('/teachers', [TeacherController::class, 'index']);
+        Route::post('/teachers', [TeacherController::class, 'store']);
+        Route::get('/teachers/{teacher}', [TeacherController::class, 'show']);
+        Route::put('/teachers/{teacher}', [TeacherController::class, 'update']);
+        Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy']);
+        Route::post('/teachers/{teacher}/subjects', [TeacherController::class, 'assignSubject']);
+        Route::post('/teachers/{teacher}/students', [TeacherController::class, 'assignStudents']);
+        Route::get('/teachers/{teacher}/schedule', [TeacherController::class, 'schedule']);
     });
 
     Route::middleware('role:applicant')->group(function () {
@@ -72,12 +82,28 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('teacher')->middleware('role:teacher')->group(function () {
         Route::get('/profile', [TeacherController::class, 'profile']);
         Route::get('/students', [StudentController::class, 'index']);
+        Route::get('/subjects', fn () => Subject::query()->where('is_active', true)->orderBy('name')->get());
+        Route::get('/attendance/report', [AttendanceController::class, 'generateReport']);
+        Route::post('/attendance/mark', [AttendanceController::class, 'markAttendance']);
+        Route::post('/attendance/bulk', [AttendanceController::class, 'bulk']);
+        Route::get('/attendance/student/{student}', [AttendanceController::class, 'getStudentAttendance']);
+        Route::get('/attendance/subject/{subjectId}', [AttendanceController::class, 'getSubjectAttendance']);
+        Route::get('/attendance/summary/{student}', [AttendanceController::class, 'getAttendanceSummary']);
         Route::apiResource('shareea-records', ShareeaController::class)->parameters([
             'shareea-records' => 'shareea',
         ]);
         Route::apiResource('hifl-progress', HiflController::class)->parameters([
             'hifl-progress' => 'hifl',
         ]);
+    });
+
+    Route::middleware('role:admin,teacher')->group(function () {
+        Route::post('/attendance/mark', [AttendanceController::class, 'markAttendance']);
+        Route::post('/attendance/bulk', [AttendanceController::class, 'bulk']);
+        Route::get('/attendance/student/{student}', [AttendanceController::class, 'getStudentAttendance']);
+        Route::get('/attendance/subject/{subjectId}', [AttendanceController::class, 'getSubjectAttendance']);
+        Route::get('/attendance/summary/{student}', [AttendanceController::class, 'getAttendanceSummary']);
+        Route::get('/attendance/report', [AttendanceController::class, 'generateReport']);
     });
 
     Route::prefix('student')->middleware('role:student')->group(function () {

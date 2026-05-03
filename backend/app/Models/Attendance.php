@@ -13,9 +13,10 @@ class Attendance extends Model
 
     protected $fillable = [
         'student_id',
+        'subject_id',
         'teacher_id',
-        'department_id',
-        'attendance_date',
+        'marked_by',
+        'date',
         'status',
         'remarks',
     ];
@@ -23,7 +24,7 @@ class Attendance extends Model
     protected function casts(): array
     {
         return [
-            'attendance_date' => 'date',
+            'date' => 'date',
         ];
     }
 
@@ -37,8 +38,13 @@ class Attendance extends Model
         return $this->belongsTo(Teacher::class);
     }
 
-    public function department()
+    public function subject()
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(Subject::class);
+    }
+
+    public function marker()
+    {
+        return $this->belongsTo(User::class, 'marked_by');
     }
 }

@@ -11,18 +11,19 @@ return new class extends Migration
         Schema::create('attendance', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
-            $table->foreignId('teacher_id')->nullable()->constrained('teachers')->nullOnDelete();
-            $table->foreignId('department_id')->nullable()->constrained('departments')->nullOnDelete();
-            $table->date('attendance_date')->index();
+            $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
+            $table->foreignId('teacher_id')->constrained('teachers')->cascadeOnDelete();
+            $table->foreignId('marked_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->date('date')->index();
             $table->enum('status', ['present', 'absent', 'late', 'excused'])->default('present')->index();
             $table->text('remarks')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->unique(['student_id', 'attendance_date']);
-            $table->index(['department_id', 'attendance_date']);
-            $table->index(['teacher_id', 'attendance_date']);
-            $table->index(['status', 'attendance_date']);
+            $table->unique(['student_id', 'subject_id', 'date']);
+            $table->index(['teacher_id', 'date']);
+            $table->index(['subject_id', 'date']);
+            $table->index(['status', 'date']);
         });
     }
 

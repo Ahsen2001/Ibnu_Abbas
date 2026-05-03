@@ -69,4 +69,11 @@ class Student extends Model
     {
         return $this->hasMany(Attendance::class);
     }
+
+    public function teachers()
+    {
+        return $this->belongsToMany(Teacher::class, 'student_teacher')
+            ->withPivot('academic_year')
+            ->withTimestamps();
+    }
 }

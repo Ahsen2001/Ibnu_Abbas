@@ -9,34 +9,38 @@ class Teacher extends Model
 {
     use SoftDeletes;
 
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_INACTIVE = 'inactive';
+    public const STATUS_ON_LEAVE = 'on_leave';
+
     protected $fillable = [
         'user_id',
-        'department_id',
-        'employee_no',
+        'employee_id',
         'full_name',
+        'date_of_birth',
+        'gender',
         'qualification',
         'specialization',
+        'email',
         'phone',
         'address',
-        'joined_at',
+        'joining_date',
+        'department',
         'status',
+        'photo_path',
     ];
 
     protected function casts(): array
     {
         return [
-            'joined_at' => 'date',
+            'date_of_birth' => 'date',
+            'joining_date' => 'date',
         ];
     }
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function department()
-    {
-        return $this->belongsTo(Department::class);
     }
 
     public function shareeaRecords()
@@ -52,5 +56,19 @@ class Teacher extends Model
     public function attendance()
     {
         return $this->hasMany(Attendance::class);
+    }
+
+    public function subjects()
+    {
+        return $this->belongsToMany(Subject::class, 'teacher_subjects')
+            ->withPivot('academic_year')
+            ->withTimestamps();
+    }
+
+    public function students()
+    {
+        return $this->belongsToMany(Student::class, 'student_teacher')
+            ->withPivot('academic_year')
+            ->withTimestamps();
     }
 }
