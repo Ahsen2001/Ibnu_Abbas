@@ -18,6 +18,7 @@ import HomePage from '../pages/public/HomePage'
 import NotFoundPage from '../pages/public/NotFoundPage'
 import UnauthorizedPage from '../pages/public/UnauthorizedPage'
 import StudentDashboard from '../pages/student/StudentDashboard'
+import StudentList from '../pages/students/StudentList'
 import TeacherDashboard from '../pages/teacher/TeacherDashboard'
 
 const adminRoles = ['super_admin', 'admin_staff']
@@ -42,7 +43,7 @@ function AppRoutes() {
             <Route index element={<AdminDashboard />} />
             <Route element={<ModulePage description="Manage user accounts, assigned roles, account status, and portal access." title="Users" />} path="users" />
             <Route element={<AdminApplicationList />} path="applications" />
-            <Route element={<ModulePage description="Search and maintain enrolled student profiles, guardian details, and department assignment." title="Students" />} path="students" />
+            <Route element={<StudentList />} path="students" />
             <Route element={<ModulePage description="Maintain teacher profiles, department assignment, and teaching responsibilities." title="Teachers" />} path="teachers" />
             <Route element={<ModulePage description="Track Shareea subjects, exams, marks, grades, and academic progression." title="Shareea Records" />} path="shareea" />
             <Route element={<ModulePage description="Track daily sabaq, revision, memorized pages, and completion percentage." title="Hifl Progress" />} path="hifl" />

@@ -10,27 +10,31 @@ return new class extends Migration
     {
         Schema::create('students', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('application_id')->nullable()->constrained('applications')->nullOnDelete();
-            $table->foreignId('department_id')->constrained('departments')->cascadeOnDelete();
-            $table->string('student_no')->unique();
+            $table->foreignId('user_id')->nullable()->unique()->constrained('users')->nullOnDelete();
+            $table->foreignId('application_id')->nullable()->unique()->constrained('applications')->nullOnDelete();
+            $table->string('student_id')->unique();
             $table->string('full_name');
             $table->date('date_of_birth')->nullable();
             $table->enum('gender', ['male', 'female'])->nullable();
+            $table->string('nationality')->nullable();
+            $table->string('religion')->nullable();
+            $table->string('email')->nullable()->index();
             $table->string('batch')->nullable()->index();
             $table->string('phone')->nullable()->index();
-            $table->string('address')->nullable();
+            $table->text('address')->nullable();
             $table->string('guardian_name')->nullable();
             $table->string('guardian_phone')->nullable()->index();
+            $table->enum('department', ['shareea', 'hifl'])->index();
+            $table->date('enrollment_date')->nullable()->index();
+            $table->json('documents')->nullable();
             $table->string('photo_path')->nullable();
-            $table->date('enrolled_at')->nullable()->index();
-            $table->string('status')->default('active')->index();
+            $table->enum('status', ['active', 'inactive', 'graduated', 'withdrawn'])->default('active')->index();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['department_id', 'batch']);
-            $table->index(['department_id', 'status']);
-            $table->index(['student_no', 'status']);
+            $table->index(['department', 'batch']);
+            $table->index(['department', 'status']);
+            $table->index(['student_id', 'status']);
         });
     }
 

@@ -16,20 +16,24 @@ class StoreStudentRequest extends FormRequest
     {
         return [
             'user_id' => ['nullable', 'exists:users,id'],
-            'application_id' => ['nullable', 'exists:applications,id'],
-            'department_id' => ['required', 'exists:departments,id'],
-            'student_no' => ['required', 'string', 'max:50', 'unique:students,student_no'],
-            'full_name' => ['required', 'string', 'max:255'],
+            'application_id' => ['nullable', 'exists:applications,id', 'unique:students,application_id'],
+            'full_name' => ['nullable', 'string', 'max:255'],
             'date_of_birth' => ['nullable', 'date'],
             'gender' => ['nullable', Rule::in(['male', 'female'])],
+            'nationality' => ['nullable', 'string', 'max:100'],
+            'religion' => ['nullable', 'string', 'max:100'],
+            'email' => ['nullable', 'email', 'max:255'],
             'batch' => ['nullable', 'string', 'max:50'],
             'phone' => ['nullable', 'string', 'max:30'],
-            'address' => ['nullable', 'string', 'max:255'],
+            'address' => ['nullable', 'string'],
             'guardian_name' => ['nullable', 'string', 'max:255'],
             'guardian_phone' => ['nullable', 'string', 'max:30'],
-            'photo_path' => ['nullable', 'string', 'max:255'],
-            'enrolled_at' => ['nullable', 'date'],
-            'status' => ['nullable', Rule::in(['active', 'inactive', 'graduated', 'transferred'])],
+            'department' => ['nullable', Rule::in(['shareea', 'hifl'])],
+            'enrollment_date' => ['nullable', 'date'],
+            'status' => ['nullable', Rule::in(['active', 'inactive', 'graduated', 'withdrawn'])],
+            'photo' => ['nullable', 'image', 'max:5120'],
+            'documents' => ['nullable', 'array'],
+            'documents.*' => ['file', 'max:8192'],
         ];
     }
 }

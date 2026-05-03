@@ -9,29 +9,39 @@ class Student extends Model
 {
     use SoftDeletes;
 
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_INACTIVE = 'inactive';
+    public const STATUS_GRADUATED = 'graduated';
+    public const STATUS_WITHDRAWN = 'withdrawn';
+
     protected $fillable = [
         'user_id',
         'application_id',
-        'department_id',
-        'student_no',
+        'student_id',
         'full_name',
         'date_of_birth',
         'gender',
+        'nationality',
+        'religion',
+        'email',
+        'department',
         'batch',
         'phone',
         'address',
         'guardian_name',
         'guardian_phone',
         'photo_path',
+        'documents',
         'status',
-        'enrolled_at',
+        'enrollment_date',
     ];
 
     protected function casts(): array
     {
         return [
             'date_of_birth' => 'date',
-            'enrolled_at' => 'date',
+            'enrollment_date' => 'date',
+            'documents' => 'array',
         ];
     }
 
@@ -43,11 +53,6 @@ class Student extends Model
     public function application()
     {
         return $this->belongsTo(Application::class);
-    }
-
-    public function department()
-    {
-        return $this->belongsTo(Department::class);
     }
 
     public function shareeaRecords()

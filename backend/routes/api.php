@@ -35,7 +35,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index']);
         Route::apiResource('users', UserController::class);
         Route::apiResource('departments', DepartmentController::class);
-        Route::apiResource('students', StudentController::class);
         Route::apiResource('teachers', TeacherController::class);
         Route::apiResource('shareea-records', ShareeaController::class)->parameters([
             'shareea-records' => 'shareea',
@@ -50,6 +49,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/applications', [ApplicationController::class, 'index']);
         Route::patch('/applications/{application}/status', [ApplicationController::class, 'updateStatus']);
         Route::post('/applications/{application}/interview', [ApplicationController::class, 'scheduleInterview']);
+        Route::get('/students', [StudentController::class, 'index']);
+        Route::post('/students', [StudentController::class, 'store']);
+        Route::get('/students/search', [StudentController::class, 'search']);
+        Route::get('/students/{student}', [StudentController::class, 'show']);
+        Route::put('/students/{student}', [StudentController::class, 'update']);
+        Route::delete('/students/{student}', [StudentController::class, 'destroy']);
+        Route::get('/students/{student}/id-card', [StudentController::class, 'generateIdCard']);
     });
 
     Route::middleware('role:applicant')->group(function () {
