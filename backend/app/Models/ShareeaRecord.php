@@ -5,34 +5,29 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class HiflProgress extends Model
+class ShareeaRecord extends Model
 {
     use SoftDeletes;
-
-    protected $table = 'hifl_progress';
 
     protected $fillable = [
         'student_id',
         'teacher_id',
-        'recorded_on',
-        'sabaq',
-        'sabaq_para',
-        'revision',
-        'revision_para',
-        'memorized_pages',
-        'revised_pages',
-        'completion_percentage',
-        'quality_rating',
+        'subject_name',
+        'subject_code',
+        'academic_level',
+        'exam_name',
+        'exam_date',
+        'marks',
+        'grade',
+        'result_status',
         'remarks',
     ];
 
     protected function casts(): array
     {
         return [
-            'recorded_on' => 'date',
-            'memorized_pages' => 'integer',
-            'revised_pages' => 'integer',
-            'completion_percentage' => 'decimal:2',
+            'exam_date' => 'date',
+            'marks' => 'decimal:2',
         ];
     }
 

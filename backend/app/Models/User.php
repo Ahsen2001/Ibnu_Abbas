@@ -4,13 +4,14 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     public const ROLE_SUPER_ADMIN = 'super_admin';
     public const ROLE_ADMIN_STAFF = 'admin_staff';
@@ -27,7 +28,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
+        'role_id',
         'phone',
         'preferred_locale',
         'status',
@@ -59,9 +60,14 @@ class User extends Authenticatable
         ];
     }
 
-    public function application()
+    public function role()
     {
-        return $this->hasOne(AdmissionApplication::class, 'applicant_user_id');
+        return $this->belongsTo(Role::class);
+    }
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class, 'applicant_user_id');
     }
 
     public function student()
@@ -72,5 +78,15 @@ class User extends Authenticatable
     public function teacher()
     {
         return $this->hasOne(Teacher::class);
+    }
+
+    public function announcements()
+    {
+        return $this->hasMany(Announcement::class, 'created_by');
+    }
+
+    public function emailLogs()
+    {
+        return $this->hasMany(EmailLog::class, 'sent_by');
     }
 }

@@ -5,34 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class HiflProgress extends Model
+class Attendance extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'hifl_progress';
+    protected $table = 'attendance';
 
     protected $fillable = [
         'student_id',
         'teacher_id',
-        'recorded_on',
-        'sabaq',
-        'sabaq_para',
-        'revision',
-        'revision_para',
-        'memorized_pages',
-        'revised_pages',
-        'completion_percentage',
-        'quality_rating',
+        'department_id',
+        'attendance_date',
+        'status',
         'remarks',
     ];
 
     protected function casts(): array
     {
         return [
-            'recorded_on' => 'date',
-            'memorized_pages' => 'integer',
-            'revised_pages' => 'integer',
-            'completion_percentage' => 'decimal:2',
+            'attendance_date' => 'date',
         ];
     }
 
@@ -44,5 +35,10 @@ class HiflProgress extends Model
     public function teacher()
     {
         return $this->belongsTo(Teacher::class);
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
     }
 }

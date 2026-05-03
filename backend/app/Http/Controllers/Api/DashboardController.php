@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\AdmissionApplication;
+use App\Models\Application;
 use App\Models\Department;
 use App\Models\Student;
 use App\Models\User;
@@ -15,11 +15,11 @@ class DashboardController extends Controller
         return response()->json([
             'totals' => [
                 'students' => Student::count(),
-                'applicants' => User::where('role', User::ROLE_APPLICANT)->count(),
-                'applications' => AdmissionApplication::count(),
+                'applicants' => User::whereHas('role', fn ($query) => $query->where('slug', User::ROLE_APPLICANT))->count(),
+                'applications' => Application::count(),
                 'departments' => Department::where('is_active', true)->count(),
             ],
-            'admissions_by_status' => AdmissionApplication::query()
+            'admissions_by_status' => Application::query()
                 ->selectRaw('status, count(*) as total')
                 ->groupBy('status')
                 ->pluck('total', 'status'),

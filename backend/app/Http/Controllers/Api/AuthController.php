@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -21,15 +22,21 @@ class AuthController extends Controller
             'preferred_locale' => ['nullable', Rule::in(['en', 'ta', 'ar'])],
         ]);
 
+        $role = Role::firstOrCreate(['slug' => User::ROLE_APPLICANT], [
+            'name' => 'Applicant',
+            'description' => 'Admission applicant account.',
+            'is_system' => true,
+        ]);
+
         $user = User::create([
             ...$data,
-            'role' => User::ROLE_APPLICANT,
+            'role_id' => $role->id,
             'password' => Hash::make($data['password']),
             'preferred_locale' => $data['preferred_locale'] ?? 'en',
         ]);
 
         return response()->json([
-            'user' => $user,
+            'user' => $user->load('role'),
             'token' => $user->createToken('spa')->plainTextToken,
         ], 201);
     }
@@ -50,14 +57,14 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'user' => $user,
+            'user' => $user->load('role'),
             'token' => $user->createToken('spa')->plainTextToken,
         ]);
     }
 
     public function me(Request $request)
     {
-        return response()->json($request->user());
+        return response()->json($request->user()->load('role'));
     }
 
     public function logout(Request $request)

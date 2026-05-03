@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\AdmissionApplicationController;
+use App\Http\Controllers\Api\ApplicationController;
 use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
@@ -19,9 +19,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::apiResource('departments', DepartmentController::class)->only(['index', 'store']);
-    Route::apiResource('applications', AdmissionApplicationController::class);
-    Route::post('/applications/{application}/submit', [AdmissionApplicationController::class, 'submit']);
-    Route::patch('/applications/{application}/status', [AdmissionApplicationController::class, 'changeStatus']);
+    Route::apiResource('applications', ApplicationController::class);
+    Route::post('/applications/{application}/submit', [ApplicationController::class, 'submit']);
+    Route::patch('/applications/{application}/status', [ApplicationController::class, 'changeStatus']);
     Route::apiResource('students', StudentController::class)->only(['index']);
     Route::apiResource('announcements', AnnouncementController::class)->only(['index', 'store']);
 });

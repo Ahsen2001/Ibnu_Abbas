@@ -18,7 +18,9 @@ class AnnouncementController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'body' => ['required', 'string'],
-            'audience' => ['nullable', 'string', 'max:50'],
+            'audience' => ['nullable', 'in:all,applicants,students,teachers,shareea,hifl,admin'],
+            'department_id' => ['nullable', 'exists:departments,id'],
+            'is_published' => ['nullable', 'boolean'],
             'published_at' => ['nullable', 'date'],
         ]);
 
@@ -26,6 +28,7 @@ class AnnouncementController extends Controller
             ...$data,
             'created_by' => $request->user()->id,
             'audience' => $data['audience'] ?? 'all',
+            'is_published' => $data['is_published'] ?? true,
             'published_at' => $data['published_at'] ?? now(),
         ]), 201);
     }

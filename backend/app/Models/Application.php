@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class AdmissionApplication extends Model
+class Application extends Model
 {
+    use SoftDeletes;
+
     public const STATUS_DRAFT = 'draft';
     public const STATUS_SUBMITTED = 'submitted';
     public const STATUS_UNDER_REVIEW = 'under_review';
@@ -13,6 +16,7 @@ class AdmissionApplication extends Model
     public const STATUS_INTERVIEW_SCHEDULED = 'interview_scheduled';
     public const STATUS_SELECTED = 'selected';
     public const STATUS_REJECTED = 'rejected';
+    public const STATUS_ENROLLED = 'enrolled';
 
     protected $fillable = [
         'application_no',
@@ -22,10 +26,13 @@ class AdmissionApplication extends Model
         'date_of_birth',
         'gender',
         'phone',
+        'email',
         'address',
         'guardian_name',
         'guardian_phone',
+        'guardian_relationship',
         'previous_education',
+        'documents',
         'status',
         'submitted_at',
         'edit_deadline_at',
@@ -38,6 +45,7 @@ class AdmissionApplication extends Model
         return [
             'date_of_birth' => 'date',
             'previous_education' => 'array',
+            'documents' => 'array',
             'submitted_at' => 'datetime',
             'edit_deadline_at' => 'datetime',
             'interview_at' => 'datetime',
@@ -52,6 +60,11 @@ class AdmissionApplication extends Model
     public function department()
     {
         return $this->belongsTo(Department::class);
+    }
+
+    public function student()
+    {
+        return $this->hasOne(Student::class);
     }
 
     public function canBeEdited(): bool

@@ -18,6 +18,7 @@ class DepartmentController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:departments,name'],
             'code' => ['required', 'string', 'max:30', 'unique:departments,code'],
+            'type' => ['required', 'in:shareea,hifl'],
             'description' => ['nullable', 'string'],
         ]);
 

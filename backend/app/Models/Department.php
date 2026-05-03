@@ -3,10 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Department extends Model
 {
-    protected $fillable = ['name', 'code', 'description', 'is_active'];
+    use SoftDeletes;
+
+    protected $fillable = [
+        'name',
+        'code',
+        'type',
+        'description',
+        'is_active',
+    ];
 
     protected function casts(): array
     {
@@ -20,6 +29,16 @@ class Department extends Model
 
     public function applications()
     {
-        return $this->hasMany(AdmissionApplication::class);
+        return $this->hasMany(Application::class);
+    }
+
+    public function teachers()
+    {
+        return $this->hasMany(Teacher::class);
+    }
+
+    public function announcements()
+    {
+        return $this->hasMany(Announcement::class);
     }
 }
