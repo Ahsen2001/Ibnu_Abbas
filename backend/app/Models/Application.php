@@ -12,43 +12,49 @@ class Application extends Model
     public const STATUS_DRAFT = 'draft';
     public const STATUS_SUBMITTED = 'submitted';
     public const STATUS_UNDER_REVIEW = 'under_review';
-    public const STATUS_SHORTLISTED = 'shortlisted';
     public const STATUS_INTERVIEW_SCHEDULED = 'interview_scheduled';
-    public const STATUS_SELECTED = 'selected';
+    public const STATUS_OFFERED = 'offered';
+    public const STATUS_ACCEPTED = 'accepted';
     public const STATUS_REJECTED = 'rejected';
-    public const STATUS_ENROLLED = 'enrolled';
+    public const STATUS_WITHDRAWN = 'withdrawn';
 
     protected $fillable = [
         'application_no',
         'applicant_user_id',
-        'department_id',
-        'full_name',
+        'applicant_name',
         'date_of_birth',
         'gender',
+        'nationality',
+        'religion',
         'phone',
         'email',
         'address',
         'guardian_name',
         'guardian_phone',
-        'guardian_relationship',
-        'previous_education',
+        'previous_school',
+        'previous_grade',
+        'department',
         'documents',
         'status',
+        'interview_date',
+        'interview_time',
+        'interview_notes',
+        'offer_issued_at',
+        'submission_deadline',
         'submitted_at',
-        'edit_deadline_at',
-        'interview_at',
-        'admin_notes',
+        'reviewed_by',
+        'internal_notes',
     ];
 
     protected function casts(): array
     {
         return [
             'date_of_birth' => 'date',
-            'previous_education' => 'array',
             'documents' => 'array',
+            'interview_date' => 'date',
             'submitted_at' => 'datetime',
-            'edit_deadline_at' => 'datetime',
-            'interview_at' => 'datetime',
+            'offer_issued_at' => 'datetime',
+            'submission_deadline' => 'datetime',
         ];
     }
 
@@ -57,20 +63,19 @@ class Application extends Model
         return $this->belongsTo(User::class, 'applicant_user_id');
     }
 
-    public function department()
-    {
-        return $this->belongsTo(Department::class);
-    }
-
     public function student()
     {
         return $this->hasOne(Student::class);
     }
 
+    public function reviewer()
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
     public function canBeEdited(): bool
     {
-        return in_array($this->status, [self::STATUS_SUBMITTED, self::STATUS_UNDER_REVIEW], true)
-            && $this->edit_deadline_at
-            && now()->lessThanOrEqualTo($this->edit_deadline_at);
+        return $this->status === self::STATUS_DRAFT
+            && (! $this->submission_deadline || now()->lessThanOrEqualTo($this->submission_deadline));
     }
 }

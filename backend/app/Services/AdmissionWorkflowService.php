@@ -9,22 +9,18 @@ class AdmissionWorkflowService
 {
     private const TRANSITIONS = [
         Application::STATUS_DRAFT => [Application::STATUS_SUBMITTED],
-        Application::STATUS_SUBMITTED => [Application::STATUS_UNDER_REVIEW, Application::STATUS_REJECTED],
-        Application::STATUS_UNDER_REVIEW => [Application::STATUS_SHORTLISTED, Application::STATUS_REJECTED],
-        Application::STATUS_SHORTLISTED => [Application::STATUS_INTERVIEW_SCHEDULED, Application::STATUS_REJECTED],
-        Application::STATUS_INTERVIEW_SCHEDULED => [Application::STATUS_SELECTED, Application::STATUS_REJECTED],
-        Application::STATUS_SELECTED => [Application::STATUS_ENROLLED, Application::STATUS_REJECTED],
+        Application::STATUS_SUBMITTED => [Application::STATUS_UNDER_REVIEW, Application::STATUS_WITHDRAWN],
+        Application::STATUS_UNDER_REVIEW => [Application::STATUS_INTERVIEW_SCHEDULED, Application::STATUS_REJECTED, Application::STATUS_WITHDRAWN],
+        Application::STATUS_INTERVIEW_SCHEDULED => [Application::STATUS_OFFERED, Application::STATUS_REJECTED, Application::STATUS_WITHDRAWN],
+        Application::STATUS_OFFERED => [Application::STATUS_ACCEPTED, Application::STATUS_REJECTED, Application::STATUS_WITHDRAWN],
+        Application::STATUS_ACCEPTED => [],
         Application::STATUS_REJECTED => [],
-        Application::STATUS_ENROLLED => [],
+        Application::STATUS_WITHDRAWN => [],
     ];
 
     public function assertEditable(Application $application): void
     {
         if ($application->status === Application::STATUS_DRAFT) {
-            return;
-        }
-
-        if ($application->canBeEdited()) {
             return;
         }
 
@@ -35,12 +31,36 @@ class AdmissionWorkflowService
 
     public function submit(Application $application): Application
     {
-        $this->transition($application, Application::STATUS_SUBMITTED, [
+        if (! $application->canBeEdited()) {
+            throw ValidationException::withMessages([
+                'submission_deadline' => ['The submission deadline has passed.'],
+            ]);
+        }
+
+        return $this->transition($application, Application::STATUS_SUBMITTED, [
             'submitted_at' => now(),
-            'edit_deadline_at' => now()->addDays(7),
+        ]);
+    }
+
+    public function saveDraft(Application $application, array $attributes): Application
+    {
+        if (! $application->canBeEdited()) {
+            throw ValidationException::withMessages([
+                'submission_deadline' => ['This draft can no longer be edited.'],
+            ]);
+        }
+
+        $application->update([
+            ...$attributes,
+            'status' => Application::STATUS_DRAFT,
         ]);
 
         return $application->fresh();
+    }
+
+    public function scheduleInterview(Application $application, array $attributes): Application
+    {
+        return $this->transition($application, Application::STATUS_INTERVIEW_SCHEDULED, $attributes);
     }
 
     public function transition(Application $application, string $newStatus, array $attributes = []): Application

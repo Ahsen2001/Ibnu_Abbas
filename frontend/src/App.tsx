@@ -1,4 +1,4 @@
-import { ToastContainer } from 'react-toastify'
+import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
 import AppRoutes from './routes/AppRoutes'
 
@@ -6,7 +6,7 @@ function App() {
   return (
     <AuthProvider>
       <AppRoutes />
-      <ToastContainer position="top-right" autoClose={3500} newestOnTop />
+      <Toaster position="top-right" toastOptions={{ duration: 3500 }} />
     </AuthProvider>
   )
 }

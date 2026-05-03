@@ -37,9 +37,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('departments', DepartmentController::class);
         Route::apiResource('students', StudentController::class);
         Route::apiResource('teachers', TeacherController::class);
-        Route::apiResource('applications', ApplicationController::class);
-        Route::post('/applications/{application}/submit', [ApplicationController::class, 'submit']);
-        Route::patch('/applications/{application}/status', [ApplicationController::class, 'changeStatus']);
         Route::apiResource('shareea-records', ShareeaController::class)->parameters([
             'shareea-records' => 'shareea',
         ]);
@@ -49,10 +46,22 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('announcements', AnnouncementController::class)->except(['index']);
     });
 
-    Route::prefix('applicant')->middleware('role:applicant')->group(function () {
-        Route::apiResource('applications', ApplicationController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
-        Route::post('/applications/{application}/submit', [ApplicationController::class, 'submit']);
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/applications', [ApplicationController::class, 'index']);
+        Route::patch('/applications/{application}/status', [ApplicationController::class, 'updateStatus']);
+        Route::post('/applications/{application}/interview', [ApplicationController::class, 'scheduleInterview']);
     });
+
+    Route::middleware('role:applicant')->group(function () {
+        Route::post('/applications', [ApplicationController::class, 'store']);
+        Route::put('/applications/{application}', [ApplicationController::class, 'update']);
+        Route::post('/applications/{application}/draft', [ApplicationController::class, 'saveDraft']);
+        Route::get('/applications/my', [ApplicationController::class, 'my']);
+    });
+
+    Route::get('/applications/{application}', [ApplicationController::class, 'show']);
+    Route::get('/applications/{application}/offer', [ApplicationController::class, 'generateOffer']);
+    Route::get('/applications/{application}/print', [ApplicationController::class, 'printApplication']);
 
     Route::prefix('teacher')->middleware('role:teacher')->group(function () {
         Route::get('/profile', [TeacherController::class, 'profile']);

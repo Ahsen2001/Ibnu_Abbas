@@ -12,37 +12,44 @@ return new class extends Migration
             $table->id();
             $table->string('application_no')->unique();
             $table->foreignId('applicant_user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('department_id')->nullable()->constrained('departments')->nullOnDelete();
-            $table->string('full_name');
+            $table->string('applicant_name');
             $table->date('date_of_birth')->nullable();
             $table->enum('gender', ['male', 'female'])->nullable();
+            $table->string('nationality')->nullable();
+            $table->string('religion')->nullable();
             $table->string('phone')->nullable()->index();
             $table->string('email')->nullable()->index();
-            $table->string('address')->nullable();
+            $table->text('address')->nullable();
             $table->string('guardian_name')->nullable();
             $table->string('guardian_phone')->nullable()->index();
-            $table->string('guardian_relationship')->nullable();
-            $table->json('previous_education')->nullable();
+            $table->string('previous_school')->nullable();
+            $table->string('previous_grade')->nullable();
+            $table->enum('department', ['shareea', 'hifl'])->nullable()->index();
             $table->json('documents')->nullable();
             $table->enum('status', [
                 'draft',
                 'submitted',
                 'under_review',
-                'shortlisted',
                 'interview_scheduled',
-                'selected',
+                'offered',
+                'accepted',
                 'rejected',
-                'enrolled',
+                'withdrawn',
             ])->default('draft')->index();
+            $table->date('interview_date')->nullable()->index();
+            $table->time('interview_time')->nullable();
+            $table->text('interview_notes')->nullable();
+            $table->timestamp('offer_issued_at')->nullable()->index();
+            $table->timestamp('submission_deadline')->nullable()->index();
             $table->timestamp('submitted_at')->nullable()->index();
-            $table->timestamp('edit_deadline_at')->nullable()->index();
-            $table->timestamp('interview_at')->nullable()->index();
-            $table->text('admin_notes')->nullable();
+            $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->text('internal_notes')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['department_id', 'status']);
+            $table->index(['department', 'status']);
             $table->index(['applicant_user_id', 'status']);
+            $table->index(['reviewed_by', 'status']);
         });
     }
 

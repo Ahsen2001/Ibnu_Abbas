@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { toast } from 'react-toastify'
+import toast from 'react-hot-toast'
 import type { ReactNode } from 'react'
 import type { AuthUser, ForgotPasswordPayload, LoginPayload, OtpPayload, RegisterPayload, ResetPasswordPayload } from '../services/authService'
 import { authService } from '../services/authService'

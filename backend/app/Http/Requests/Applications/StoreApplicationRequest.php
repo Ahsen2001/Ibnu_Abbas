@@ -15,19 +15,22 @@ class StoreApplicationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'applicant_user_id' => ['nullable', 'exists:users,id'],
-            'department_id' => ['nullable', 'exists:departments,id'],
-            'full_name' => ['required', 'string', 'max:255'],
-            'date_of_birth' => ['nullable', 'date'],
-            'gender' => ['nullable', Rule::in(['male', 'female'])],
-            'phone' => ['nullable', 'string', 'max:30'],
-            'email' => ['nullable', 'email', 'max:255'],
-            'address' => ['nullable', 'string', 'max:255'],
-            'guardian_name' => ['nullable', 'string', 'max:255'],
-            'guardian_phone' => ['nullable', 'string', 'max:30'],
-            'guardian_relationship' => ['nullable', 'string', 'max:100'],
-            'previous_education' => ['nullable', 'array'],
+            'applicant_name' => ['required', 'string', 'max:255'],
+            'date_of_birth' => ['required', 'date'],
+            'gender' => ['required', Rule::in(['male', 'female'])],
+            'nationality' => ['required', 'string', 'max:100'],
+            'religion' => ['required', 'string', 'max:100'],
+            'email' => ['required', 'email', 'max:255'],
+            'phone' => ['required', 'string', 'max:30'],
+            'address' => ['required', 'string'],
+            'guardian_name' => ['required', 'string', 'max:255'],
+            'guardian_phone' => ['required', 'string', 'max:30'],
+            'previous_school' => ['required', 'string', 'max:255'],
+            'previous_grade' => ['required', 'string', 'max:100'],
+            'department' => ['required', Rule::in(['shareea', 'hifl'])],
             'documents' => ['nullable', 'array'],
+            'documents.*' => ['file', 'mimes:jpg,jpeg,png,pdf', 'max:4096'],
+            'submission_deadline' => ['nullable', 'date'],
         ];
     }
 }

@@ -6,7 +6,7 @@ use App\Models\Application;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class ChangeApplicationStatusRequest extends FormRequest
+class UpdateApplicationStatusRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -18,14 +18,14 @@ class ChangeApplicationStatusRequest extends FormRequest
         return [
             'status' => ['required', Rule::in([
                 Application::STATUS_UNDER_REVIEW,
-                Application::STATUS_SHORTLISTED,
                 Application::STATUS_INTERVIEW_SCHEDULED,
-                Application::STATUS_SELECTED,
+                Application::STATUS_OFFERED,
+                Application::STATUS_ACCEPTED,
                 Application::STATUS_REJECTED,
-                Application::STATUS_ENROLLED,
+                Application::STATUS_WITHDRAWN,
             ])],
-            'interview_at' => ['nullable', 'date'],
-            'admin_notes' => ['nullable', 'string'],
+            'internal_notes' => ['nullable', 'string'],
+            'interview_notes' => ['nullable', 'string'],
         ];
     }
 }

@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Applications\ChangeApplicationStatusRequest;
+use App\Http\Requests\Applications\SaveDraftApplicationRequest;
+use App\Http\Requests\Applications\ScheduleInterviewRequest;
 use App\Http\Requests\Applications\StoreApplicationRequest;
 use App\Http\Requests\Applications\UpdateApplicationRequest;
+use App\Http\Requests\Applications\UpdateApplicationStatusRequest;
 use App\Models\Application;
 use App\Services\AdmissionWorkflowService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ApplicationController extends Controller
@@ -19,42 +23,54 @@ class ApplicationController extends Controller
 
     public function index(Request $request)
     {
-        $user = $request->user();
-
-        return Application::with(['department', 'applicant.role'])
-            ->when($user?->role?->slug === 'applicant', fn ($query) => $query->where('applicant_user_id', $user->id))
+        $applications = Application::with(['applicant.role', 'reviewer'])
             ->when($request->query('status'), fn ($query, $status) => $query->where('status', $status))
-            ->when($request->query('department_id'), fn ($query, $id) => $query->where('department_id', $id))
+            ->when($request->query('department'), fn ($query, $department) => $query->where('department', $department))
+            ->when($request->query('date_from'), fn ($query, $dateFrom) => $query->whereDate('created_at', '>=', $dateFrom))
+            ->when($request->query('date_to'), fn ($query, $dateTo) => $query->whereDate('created_at', '<=', $dateTo))
             ->when($request->query('search'), function ($query, $search) {
                 $query->where(fn ($inner) => $inner
                     ->where('application_no', 'like', "%{$search}%")
-                    ->orWhere('full_name', 'like', "%{$search}%")
-                    ->orWhere('phone', 'like', "%{$search}%"));
+                    ->orWhere('applicant_name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%"));
             })
             ->latest()
-            ->paginate((int) $request->query('per_page', 20));
+            ->paginate((int) $request->query('per_page', 15));
+
+        return response()->json($applications);
+    }
+
+    public function my(Request $request)
+    {
+        return response()->json(
+            Application::with('reviewer')
+                ->where('applicant_user_id', $request->user()->id)
+                ->latest()
+                ->paginate((int) $request->query('per_page', 15))
+        );
     }
 
     public function store(StoreApplicationRequest $request)
     {
         $data = $request->validated();
-        $user = $request->user();
-
         $application = Application::create([
             ...$data,
-            'applicant_user_id' => $user->role?->slug === 'applicant' ? $user->id : ($data['applicant_user_id'] ?? $user->id),
-            'application_no' => 'APP-'.now()->format('Ymd').'-'.Str::upper(Str::random(6)),
-            'status' => Application::STATUS_DRAFT,
+            'applicant_user_id' => $request->user()->id,
+            'application_no' => $this->generateApplicationNo(),
+            'documents' => $this->storeDocuments($request),
+            'status' => Application::STATUS_SUBMITTED,
+            'submitted_at' => now(),
+            'submission_deadline' => $data['submission_deadline'] ?? now()->addDays(14),
         ]);
 
-        return response()->json($application->load(['department', 'applicant.role']), 201);
+        return response()->json($application->fresh()->load(['applicant.role', 'reviewer']), 201);
     }
 
     public function show(Request $request, Application $application)
     {
         $this->authorizeApplicationAccess($request, $application);
 
-        return $application->load(['department', 'applicant.role', 'student']);
+        return response()->json($application->load(['applicant.role', 'reviewer']));
     }
 
     public function update(UpdateApplicationRequest $request, Application $application)
@@ -62,52 +78,128 @@ class ApplicationController extends Controller
         $this->authorizeApplicationAccess($request, $application);
         $this->workflow->assertEditable($application);
 
-        $application->update($request->validated());
+        $data = $request->validated();
+        $data['documents'] = $this->mergeDocuments($request, $application);
+        $shouldSubmit = (bool) ($data['submit'] ?? false);
+        unset($data['submit']);
 
-        return $application->fresh()->load(['department', 'applicant.role']);
+        $application->update($data);
+
+        if ($shouldSubmit) {
+            $application = $this->workflow->submit($application);
+        }
+
+        return response()->json($application->fresh()->load(['applicant.role', 'reviewer']));
     }
 
-    public function submit(Request $request, Application $application)
+    public function saveDraft(SaveDraftApplicationRequest $request, Application $application)
     {
         $this->authorizeApplicationAccess($request, $application);
 
-        $application = $this->workflow->submit($application);
+        $application = $this->workflow->saveDraft($application, [
+            ...$request->validated(),
+            'documents' => $this->mergeDocuments($request, $application),
+        ]);
 
-        return response()->json($application->load(['department', 'applicant.role']));
+        return response()->json($application->load(['applicant.role', 'reviewer']));
     }
 
-    public function changeStatus(ChangeApplicationStatusRequest $request, Application $application)
+    public function updateStatus(UpdateApplicationStatusRequest $request, Application $application)
     {
         $data = $request->validated();
 
         $application = $this->workflow->transition($application, $data['status'], [
-            'interview_at' => $data['interview_at'] ?? $application->interview_at,
-            'admin_notes' => $data['admin_notes'] ?? $application->admin_notes,
+            'internal_notes' => $data['internal_notes'] ?? $application->internal_notes,
+            'interview_notes' => $data['interview_notes'] ?? $application->interview_notes,
+            'reviewed_by' => $request->user()->id,
+            'offer_issued_at' => $data['status'] === Application::STATUS_OFFERED ? now() : $application->offer_issued_at,
         ]);
 
         return response()->json([
-            'application' => $application->load(['department', 'applicant.role']),
+            'application' => $application->load(['applicant.role', 'reviewer']),
             'next_statuses' => $this->workflow->availableTransitions($application),
         ]);
     }
 
-    public function destroy(Request $request, Application $application)
+    public function scheduleInterview(ScheduleInterviewRequest $request, Application $application)
+    {
+        $application = $this->workflow->scheduleInterview($application, [
+            'interview_date' => $request->validated('interview_date'),
+            'interview_time' => $request->validated('interview_time'),
+            'interview_notes' => $request->validated('interview_notes'),
+            'reviewed_by' => $request->user()->id,
+        ]);
+
+        return response()->json($application->load(['applicant.role', 'reviewer']));
+    }
+
+    public function generateOffer(Request $request, Application $application)
     {
         $this->authorizeApplicationAccess($request, $application);
 
-        if ($application->status !== Application::STATUS_DRAFT) {
-            abort(422, 'Only draft applications can be deleted.');
-        }
+        abort_unless(
+            in_array($application->status, [Application::STATUS_OFFERED, Application::STATUS_ACCEPTED], true),
+            422,
+            'Offer letter is available only for offered or accepted applications.'
+        );
 
-        $application->delete();
+        $pdf = Pdf::loadView('pdf.offer-letter', [
+            'application' => $application->load(['applicant', 'reviewer']),
+            'generatedAt' => now(),
+        ]);
 
-        return response()->noContent();
+        return $pdf->download("offer-letter-{$application->application_no}.pdf");
+    }
+
+    public function printApplication(Request $request, Application $application)
+    {
+        $this->authorizeApplicationAccess($request, $application);
+
+        $pdf = Pdf::loadView('pdf.application-print', [
+            'application' => $application->load(['applicant', 'reviewer']),
+            'generatedAt' => now(),
+        ]);
+
+        return $pdf->download("application-{$application->application_no}.pdf");
     }
 
     private function authorizeApplicationAccess(Request $request, Application $application): void
     {
-        if ($request->user()?->role?->slug === 'applicant' && $application->applicant_user_id !== $request->user()->id) {
-            abort(403, 'You can only access your own applications.');
+        $role = $request->user()?->role?->slug;
+
+        if (in_array($role, ['super_admin', 'admin_staff'], true)) {
+            return;
         }
+
+        if ($role === 'applicant' && $application->applicant_user_id === $request->user()->id) {
+            return;
+        }
+
+        abort(403, 'You are not authorized to access this application.');
+    }
+
+    private function generateApplicationNo(): string
+    {
+        return 'APP-'.now()->format('Ymd').'-'.Str::upper(Str::random(6));
+    }
+
+    private function storeDocuments(Request $request): array
+    {
+        return collect($request->file('documents', []))
+            ->map(fn ($file) => $file->store('applications/documents', 'public'))
+            ->values()
+            ->all();
+    }
+
+    private function mergeDocuments(Request $request, Application $application): array
+    {
+        $existingDocuments = collect($request->validated('existing_documents', $application->documents ?? []));
+        $uploadedDocuments = collect($this->storeDocuments($request));
+
+        return $existingDocuments
+            ->merge($uploadedDocuments)
+            ->filter()
+            ->values()
+            ->all();
     }
 }

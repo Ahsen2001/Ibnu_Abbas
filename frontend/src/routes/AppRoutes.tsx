@@ -8,6 +8,7 @@ import TeacherLayout from '../layouts/TeacherLayout'
 import AdminDashboard from '../pages/admin/AdminDashboard'
 import ModulePage from '../pages/admin/ModulePage'
 import ApplicantApplicationsPage from '../pages/applicant/ApplicantApplicationsPage'
+import AdminApplicationList from '../pages/applications/AdminApplicationList'
 import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage'
 import LoginPage from '../pages/auth/LoginPage'
 import RegisterPage from '../pages/auth/RegisterPage'
@@ -40,7 +41,7 @@ function AppRoutes() {
           <Route element={<AdminLayout />} path="admin">
             <Route index element={<AdminDashboard />} />
             <Route element={<ModulePage description="Manage user accounts, assigned roles, account status, and portal access." title="Users" />} path="users" />
-            <Route element={<ModulePage description="Review applicant records, control workflow transitions, and schedule interviews." title="Applications" />} path="applications" />
+            <Route element={<AdminApplicationList />} path="applications" />
             <Route element={<ModulePage description="Search and maintain enrolled student profiles, guardian details, and department assignment." title="Students" />} path="students" />
             <Route element={<ModulePage description="Maintain teacher profiles, department assignment, and teaching responsibilities." title="Teachers" />} path="teachers" />
             <Route element={<ModulePage description="Track Shareea subjects, exams, marks, grades, and academic progression." title="Shareea Records" />} path="shareea" />
