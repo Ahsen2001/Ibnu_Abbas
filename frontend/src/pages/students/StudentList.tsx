@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Eye, FileBadge2, Pencil, PlusCircle, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import FilterPanel from '../../components/FilterPanel'
 import Pagination from '../../components/Pagination'
 import SearchBar from '../../components/SearchBar'
@@ -21,6 +22,7 @@ const initialFilters = {
 }
 
 function StudentList() {
+  const navigate = useNavigate()
   const [filters, setFilters] = useState(initialFilters)
   const [students, setStudents] = useState<StudentRecord[]>([])
   const [selectedStudent, setSelectedStudent] = useState<StudentRecord | null>(null)
@@ -85,6 +87,13 @@ function StudentList() {
   const closeModal = () => setIsModalOpen(false)
 
   const refreshAndSelect = async (student: StudentRecord) => {
+    if (modalMode === 'create') {
+      setIsModalOpen(false)
+      setSelectedStudent(null)
+      navigate('/admin', { replace: true })
+      return
+    }
+
     await loadStudents()
     setSelectedStudent(student)
     setIsModalOpen(false)

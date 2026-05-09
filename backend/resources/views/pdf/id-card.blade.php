@@ -1,168 +1,193 @@
+@php
+    $logoPath = public_path('logo.jpeg');
+    $logoData = file_exists($logoPath)
+        ? 'data:image/jpeg;base64,'.base64_encode(file_get_contents($logoPath))
+        : null;
+
+    $photoData = null;
+
+    if ($student->photo_path) {
+        $photoPath = public_path('storage/'.$student->photo_path);
+
+        if (file_exists($photoPath)) {
+            $photoMime = mime_content_type($photoPath) ?: 'image/jpeg';
+            $photoData = 'data:'.$photoMime.';base64,'.base64_encode(file_get_contents($photoPath));
+        }
+    }
+
+    $enrollmentAt = $student->enrollment_date?->copy();
+
+    if (! $enrollmentAt && $student->created_at) {
+        $enrollmentAt = $student->created_at->copy();
+    } elseif (
+        $enrollmentAt
+        && $enrollmentAt->format('H:i:s') === '00:00:00'
+        && $student->created_at
+    ) {
+        $enrollmentAt->setTimeFrom($student->created_at);
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Student ID Card</title>
     <style>
-        @page {
-            margin: 8px;
-        }
-
+        @page { margin: 8px; }
         body {
             margin: 0;
             font-family: DejaVu Sans, sans-serif;
             color: #163038;
+            font-size: 10px;
         }
-
         .sheet {
+            position: relative;
             width: 100%;
         }
-
         .watermark {
             position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-20deg);
+            top: 62px;
+            left: 118px;
+            transform: rotate(-18deg);
             font-size: 18px;
             color: rgba(16, 97, 90, 0.08);
             letter-spacing: 3px;
-            white-space: nowrap;
             z-index: 0;
+            white-space: nowrap;
         }
-
-        .cards {
+        .card {
             position: relative;
             z-index: 1;
-            width: 100%;
-            overflow: hidden;
-        }
-
-        .card {
-            float: left;
+            display: inline-block;
+            vertical-align: top;
             width: 242px;
             height: 153px;
-            margin-right: 12px;
+            border: 1px solid #c9d8d5;
             border-radius: 14px;
             overflow: hidden;
-            border: 1px solid #c9d8d5;
-            background: linear-gradient(135deg, #ffffff 0%, #f4faf8 100%);
             box-sizing: border-box;
         }
-
-        .card:last-child {
-            margin-right: 0;
+        .card + .card {
+            margin-left: 12px;
         }
-
-        .header {
-            background: #10615a;
+        .front-card {
+            background: #1a746d;
             color: #ffffff;
-            padding: 10px 12px;
         }
-
-        .header h1 {
-            margin: 0;
-            font-size: 11px;
-            letter-spacing: 0.7px;
+        .back-card {
+            background: #ffffff;
         }
-
-        .header p {
-            margin: 4px 0 0;
+        .front-header {
+            padding: 12px 14px 0;
+        }
+        .front-header table,
+        .front-body table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .brand-title {
+            font-size: 10px;
+            letter-spacing: 2.2px;
+        }
+        .brand-subtitle {
+            margin-top: 5px;
             font-size: 8px;
+            color: #d9f5f0;
         }
-
-        .logo-placeholder {
-            float: right;
-            width: 34px;
-            height: 34px;
+        .logo-shell {
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            border: 1px dashed rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.08);
             text-align: center;
-            line-height: 34px;
-            font-size: 7px;
+            vertical-align: middle;
         }
-
-        .body {
-            padding: 10px 12px;
-        }
-
-        .photo {
-            float: left;
-            width: 54px;
-            height: 66px;
-            border-radius: 8px;
-            border: 1px solid #cbd5e1;
-            background: #e2e8f0;
-            text-align: center;
-            line-height: 66px;
-            font-size: 8px;
-            color: #475569;
-            overflow: hidden;
-        }
-
-        .photo img {
-            width: 54px;
-            height: 66px;
+        .logo-shell img {
+            width: 30px;
+            height: 30px;
+            margin-top: 3px;
+            border-radius: 50%;
             object-fit: cover;
         }
-
-        .details {
-            margin-left: 66px;
+        .front-body {
+            padding: 12px 14px 10px;
         }
-
-        .student-name {
-            margin: 0 0 6px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .row {
-            margin-bottom: 5px;
+        .photo-shell {
+            width: 62px;
+            height: 74px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.18);
+            text-align: center;
+            line-height: 74px;
+            color: #d9f5f0;
             font-size: 8px;
         }
-
-        .label {
-            display: inline-block;
-            width: 64px;
-            color: #475569;
+        .photo-shell img {
+            width: 62px;
+            height: 74px;
+            object-fit: cover;
+        }
+        .student-name {
+            margin: 0 0 8px;
+            font-size: 12px;
             font-weight: bold;
         }
-
+        .detail-line {
+            margin: 0 0 4px;
+            font-size: 8px;
+        }
         .barcode {
-            margin-top: 10px;
-            border: 1px dashed #94a3b8;
-            border-radius: 8px;
-            padding: 8px;
+            margin: 12px 14px 0;
+            padding: 8px 0;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.10);
             text-align: center;
             font-size: 8px;
-            letter-spacing: 2px;
-            color: #1f2937;
+            letter-spacing: 4px;
         }
-
-        .back-content {
-            padding: 12px;
-            font-size: 8px;
-            line-height: 1.5;
+        .back-header {
+            padding: 12px 14px 8px;
+            background: #0f5f58;
+            color: #ffffff;
         }
-
-        .back-content h2 {
-            margin: 0 0 8px;
-            font-size: 10px;
-            color: #10615a;
-        }
-
-        .back-content ul {
+        .back-header h2 {
             margin: 0;
-            padding-left: 14px;
+            font-size: 10px;
         }
-
+        .back-header p {
+            margin: 4px 0 0;
+            font-size: 8px;
+            color: #d6f4ef;
+        }
+        .back-content {
+            padding: 10px 14px;
+            font-size: 8px;
+            line-height: 1.55;
+        }
+        .meta-row {
+            margin-bottom: 6px;
+        }
+        .meta-label {
+            font-weight: bold;
+            color: #0f172a;
+        }
+        .rules {
+            margin: 8px 0 0 13px;
+            padding: 0;
+        }
+        .rules li {
+            margin-bottom: 4px;
+        }
         .footer {
             position: absolute;
-            bottom: 10px;
-            left: 12px;
-            right: 12px;
+            bottom: 8px;
+            left: 14px;
+            right: 14px;
             font-size: 7px;
-            color: #64748b;
             text-align: center;
+            color: #64748b;
         }
     </style>
 </head>
@@ -170,62 +195,71 @@
     <div class="sheet">
         <div class="watermark">IBNU ABBAS ARABIC COLLEGE</div>
 
-        <div class="cards">
-            <div class="card">
-                <div class="header">
-                    <div class="logo-placeholder">LOGO</div>
-                    <h1>IBNU ABBAS ARABIC COLLEGE</h1>
-                    <p>Official Student Identity Card</p>
-                </div>
-
-                <div class="body">
-                    <div class="photo">
-                        @if ($student->photo_path)
-                            <img src="{{ public_path('storage/'.$student->photo_path) }}" alt="Student Photo">
-                        @else
-                            PHOTO
-                        @endif
-                    </div>
-
-                    <div class="details">
-                        <p class="student-name">{{ $student->full_name }}</p>
-                        <div class="row"><span class="label">Student ID</span>{{ $student->student_id }}</div>
-                        <div class="row"><span class="label">Department</span>{{ strtoupper($student->department) }}</div>
-                        <div class="row"><span class="label">Batch</span>{{ $student->batch }}</div>
-                        <div class="row"><span class="label">Status</span>{{ ucfirst($student->status) }}</div>
-                    </div>
-
-                    <div style="clear: both;"></div>
-
-                    <div class="barcode">
-                        ||| {{ $student->student_id }} |||
-                    </div>
-                </div>
+        <div class="card front-card">
+            <div class="front-header">
+                <table>
+                    <tr>
+                        <td>
+                            <div class="brand-title">IBNU ABBAS ARABIC COLLEGE</div>
+                            <div class="brand-subtitle">Official Student Identity Card</div>
+                        </td>
+                        <td align="right" width="48">
+                            <div class="logo-shell">
+                                @if ($logoData)
+                                    <img src="{{ $logoData }}" alt="College Logo">
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                </table>
             </div>
 
-            <div class="card">
-                <div class="header">
-                    <h1>Card Information</h1>
-                    <p>Keep this card with you while on campus</p>
-                </div>
+            <div class="front-body">
+                <table>
+                    <tr>
+                        <td width="74" valign="top">
+                            <div class="photo-shell">
+                                @if ($photoData)
+                                    <img src="{{ $photoData }}" alt="Student Photo">
+                                @else
+                                    PHOTO
+                                @endif
+                            </div>
+                        </td>
+                        <td valign="top">
+                            <p class="student-name">{{ $student->full_name }}</p>
+                            <p class="detail-line">ID: {{ $student->student_id }}</p>
+                            <p class="detail-line">Department: {{ strtoupper($student->department) }}</p>
+                            <p class="detail-line">Batch: {{ $student->batch ?: 'N/A' }}</p>
+                            <p class="detail-line">Status: {{ ucfirst($student->status) }}</p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
 
-                <div class="back-content">
-                    <h2>Instructions</h2>
-                    <ul>
-                        <li>This card is the property of IBNU ABBAS ARABIC COLLEGE.</li>
-                        <li>Produce this card on request by authorized staff.</li>
-                        <li>If found, please return it to the college administration office.</li>
-                    </ul>
+            <div class="barcode">||| {{ $student->student_id }} |||</div>
+        </div>
 
-                    <div style="margin-top: 10px;">
-                        <strong>Guardian Contact:</strong> {{ $student->guardian_phone ?: 'Not available' }}<br>
-                        <strong>Enrollment Date:</strong> {{ optional($student->enrollment_date)->format('d M Y') ?: 'Not available' }}
-                    </div>
-                </div>
+        <div class="card back-card">
+            <div class="back-header">
+                <h2>Card Information</h2>
+                <p>Keep this card with you while on campus.</p>
+            </div>
 
-                <div class="footer">
-                    Generated {{ $generatedAt->format('d M Y') }} | Reference {{ $student->student_id }}
-                </div>
+            <div class="back-content">
+                <div class="meta-row"><span class="meta-label">Guardian Contact:</span> {{ $student->guardian_phone ?: 'Not available' }}</div>
+                <div class="meta-row"><span class="meta-label">Enrollment Date:</span> {{ $enrollmentAt?->format('d M Y, h:i A') ?: 'Not available' }}</div>
+                <div class="meta-row"><span class="meta-label">Reference:</span> {{ $student->student_id }}</div>
+
+                <ul class="rules">
+                    <li>This card is the property of IBNU ABBAS ARABIC COLLEGE.</li>
+                    <li>Produce this card on request by authorized staff.</li>
+                    <li>Report loss immediately to the administration office.</li>
+                </ul>
+            </div>
+
+            <div class="footer">
+                Generated {{ $generatedAt->format('d M Y, h:i A') }}
             </div>
         </div>
     </div>

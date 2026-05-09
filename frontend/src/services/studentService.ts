@@ -21,9 +21,12 @@ export type StudentRecord = {
   department: StudentDepartment
   batch: string | null
   enrollment_date: string | null
+  enrollment_timestamp?: string | null
   status: StudentStatus
   photo_path: string | null
   documents: string[]
+  created_at?: string
+  updated_at?: string
   application?: {
     id: number
     application_no: string
@@ -98,12 +101,12 @@ function buildFormData(
     formData.append(key, String(value))
   })
 
-  existingDocuments.forEach((path, index) => {
-    formData.append(`existing_documents[${index}]`, path)
+  existingDocuments.forEach((path) => {
+    formData.append('existing_documents[]', path)
   })
 
-  documents.forEach((file, index) => {
-    formData.append(`documents[${index}]`, file)
+  documents.forEach((file) => {
+    formData.append('documents[]', file)
   })
 
   if (photo) {
@@ -149,9 +152,6 @@ export const studentService = {
       '/students',
       buildFormData(values, photo, documents),
       {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
         onUploadProgress: (event) => {
           if (!event.total || !onProgress) return
           onProgress(Math.round((event.loaded / event.total) * 100))
@@ -174,9 +174,6 @@ export const studentService = {
     formData.append('_method', 'PUT')
 
     const { data } = await api.post<StudentRecord>(`/students/${id}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
       onUploadProgress: (event) => {
         if (!event.total || !onProgress) return
         onProgress(Math.round((event.loaded / event.total) * 100))
@@ -198,8 +195,12 @@ export const studentService = {
     const link = document.createElement('a')
     link.href = url
     link.download = `${student.student_id}-id-card.pdf`
+    document.body.appendChild(link)
     link.click()
-    window.URL.revokeObjectURL(url)
+    link.remove()
+    window.setTimeout(() => {
+      window.URL.revokeObjectURL(url)
+    }, 1500)
   },
   bulkUpdateStatus: async (ids: number[], status: StudentStatus) => {
     await api.patch('/students/bulk-status', {

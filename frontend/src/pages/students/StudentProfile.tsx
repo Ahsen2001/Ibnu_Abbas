@@ -1,5 +1,6 @@
 import { Download, Pencil } from 'lucide-react'
 import { studentService, type StudentRecord } from '../../services/studentService'
+import { formatDateTime } from '../../utils/date'
 
 type StudentProfileProps = {
   student: StudentRecord
@@ -24,7 +25,7 @@ function StudentProfile({ student, onEdit }: StudentProfileProps) {
             <p className="text-xs font-bold uppercase text-college-green">Student Profile</p>
             <h2 className="mt-2 text-2xl font-bold text-college-ink">{student.full_name}</h2>
             <p className="mt-2 text-sm text-slate-500">
-              {student.student_id} • {student.department.toUpperCase()} • Batch {student.batch}
+              {student.student_id} | {student.department.toUpperCase()} | Batch {student.batch}
             </p>
             <p className="mt-1 text-sm text-slate-500">{student.email || 'No email recorded'}</p>
           </div>
@@ -55,7 +56,7 @@ function StudentProfile({ student, onEdit }: StudentProfileProps) {
           <dl className="mt-3 grid gap-3 text-sm">
             <div className="flex justify-between gap-4"><dt className="text-slate-500">Department</dt><dd className="font-medium text-college-ink">{student.department.toUpperCase()}</dd></div>
             <div className="flex justify-between gap-4"><dt className="text-slate-500">Batch</dt><dd className="font-medium text-college-ink">{student.batch || 'Not recorded'}</dd></div>
-            <div className="flex justify-between gap-4"><dt className="text-slate-500">Enrollment Date</dt><dd className="font-medium text-college-ink">{student.enrollment_date || 'Not recorded'}</dd></div>
+            <div className="flex justify-between gap-4"><dt className="text-slate-500">Enrollment Date</dt><dd className="font-medium text-college-ink">{formatDateTime(student.enrollment_timestamp ?? student.enrollment_date ?? student.created_at)}</dd></div>
             <div className="flex justify-between gap-4"><dt className="text-slate-500">Status</dt><dd className="font-medium text-college-ink">{student.status}</dd></div>
             <div className="flex justify-between gap-4"><dt className="text-slate-500">Linked Application</dt><dd className="font-medium text-college-ink">{student.application?.application_no || 'Not linked'}</dd></div>
           </dl>

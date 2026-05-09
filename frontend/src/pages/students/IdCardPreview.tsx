@@ -2,6 +2,7 @@ import toast from 'react-hot-toast'
 import { Download } from 'lucide-react'
 import { getApiErrorMessage } from '../../services/errorService'
 import { studentService, type StudentRecord } from '../../services/studentService'
+import { formatDateTime } from '../../utils/date'
 
 type IdCardPreviewProps = {
   student: StudentRecord
@@ -40,7 +41,9 @@ function IdCardPreview({ student }: IdCardPreviewProps) {
               <p className="text-xs uppercase tracking-[0.25em] text-teal-100">IBNU ABBAS ARABIC COLLEGE</p>
               <h3 className="mt-2 text-lg font-semibold">Student Identity Card</h3>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/40 text-xs">LOGO</div>
+            <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-white/40 bg-white/10">
+              <img alt="IBNU ABBAS Arabic College logo" className="h-10 w-10 rounded-full object-cover" src="/logo.jpeg" />
+            </div>
           </div>
           <div className="mt-5 flex gap-4">
             {photoUrl ? (
@@ -65,7 +68,7 @@ function IdCardPreview({ student }: IdCardPreviewProps) {
           <p className="mt-2 text-sm text-slate-600">This card remains property of the college and should be produced on request.</p>
           <div className="mt-5 space-y-3 text-sm text-slate-700">
             <p><strong>Guardian Contact:</strong> {student.guardian_phone || 'Not recorded'}</p>
-            <p><strong>Enrollment Date:</strong> {student.enrollment_date || 'Not recorded'}</p>
+            <p><strong>Enrollment Date:</strong> {formatDateTime(student.enrollment_timestamp ?? student.enrollment_date ?? student.created_at)}</p>
             <p><strong>Status:</strong> {student.status}</p>
           </div>
           <ul className="mt-5 list-disc space-y-2 pl-5 text-sm text-slate-600">

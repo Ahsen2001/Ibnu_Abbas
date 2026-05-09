@@ -24,8 +24,14 @@ api.interceptors.request.use((config) => {
   emitNetworkActivity()
 
   if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
-    if (config.headers && 'Content-Type' in config.headers) {
-      delete config.headers['Content-Type']
+    if (config.headers) {
+      if ('Content-Type' in config.headers) {
+        delete config.headers['Content-Type']
+      }
+
+      if ('content-type' in config.headers) {
+        delete config.headers['content-type']
+      }
     }
   }
 

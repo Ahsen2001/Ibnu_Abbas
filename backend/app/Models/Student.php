@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -36,13 +37,37 @@ class Student extends Model
         'enrollment_date',
     ];
 
+    protected $appends = [
+        'enrollment_timestamp',
+    ];
+
     protected function casts(): array
     {
         return [
             'date_of_birth' => 'date',
-            'enrollment_date' => 'date',
+            'enrollment_date' => 'datetime',
             'documents' => 'array',
         ];
+    }
+
+    public function getEnrollmentTimestampAttribute(): ?string
+    {
+        $enrollment = $this->enrollment_date instanceof Carbon
+            ? $this->enrollment_date->copy()
+            : ($this->enrollment_date ? Carbon::parse($this->enrollment_date) : null);
+
+        if (! $enrollment) {
+            return $this->created_at?->toISOString();
+        }
+
+        if (
+            $enrollment->format('H:i:s') === '00:00:00'
+            && $this->created_at instanceof Carbon
+        ) {
+            $enrollment->setTimeFrom($this->created_at);
+        }
+
+        return $enrollment->toISOString();
     }
 
     public function user()

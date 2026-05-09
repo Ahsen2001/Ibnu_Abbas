@@ -132,9 +132,6 @@ export const teacherService = {
     onProgress?: (progress: number) => void,
   ) => {
     const { data } = await api.post<TeacherRecord>('/teachers', buildTeacherFormData(values, photo), {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
       onUploadProgress: (event) => {
         if (!event.total || !onProgress) return
         onProgress(Math.round((event.loaded / event.total) * 100))
@@ -154,9 +151,6 @@ export const teacherService = {
     formData.append('_method', 'PUT')
 
     const { data } = await api.post<TeacherRecord>(`/teachers/${id}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
       onUploadProgress: (event) => {
         if (!event.total || !onProgress) return
         onProgress(Math.round((event.loaded / event.total) * 100))

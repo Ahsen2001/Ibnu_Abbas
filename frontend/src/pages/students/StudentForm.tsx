@@ -7,6 +7,7 @@ import FileUpload from '../../components/FileUpload'
 import PhotoUpload from '../../components/PhotoUpload'
 import { getApiErrorMessage } from '../../services/errorService'
 import { studentService, type StudentFormValues, type StudentRecord } from '../../services/studentService'
+import { toDateTimeLocalValue } from '../../utils/date'
 
 const studentSchema = z.object({
   application_id: z.string().optional(),
@@ -57,7 +58,7 @@ function StudentForm({ student, onSuccess, onCancel }: StudentFormProps) {
       guardian_phone: student?.guardian_phone ?? '',
       department: student?.department ?? 'shareea',
       batch: student?.batch ?? String(new Date().getFullYear()),
-      enrollment_date: student?.enrollment_date ?? new Date().toISOString().slice(0, 10),
+      enrollment_date: toDateTimeLocalValue(student?.enrollment_date),
       status: student?.status ?? 'active',
     }),
     [student],
@@ -198,8 +199,8 @@ function StudentForm({ student, onSuccess, onCancel }: StudentFormProps) {
               <span className="text-xs text-red-600">{form.formState.errors.batch?.message}</span>
             </label>
             <label className="grid gap-2 text-sm font-medium text-slate-700">
-              Enrollment Date
-              <input className="form-input" type="date" {...form.register('enrollment_date')} />
+              Enrollment Date & Time
+              <input className="form-input" type="datetime-local" {...form.register('enrollment_date')} />
               <span className="text-xs text-red-600">{form.formState.errors.enrollment_date?.message}</span>
             </label>
             <label className="grid gap-2 text-sm font-medium text-slate-700">
