@@ -16,6 +16,7 @@
     min-width: 320px;
     min-height: 100vh;
     margin: 0;
+    overflow-x: hidden;
   }
 
   button,
@@ -53,6 +54,10 @@
 
   .loading-bar {
     animation: loading-slide 1.2s ease-in-out infinite;
+  }
+
+  .mobile-safe-padding {
+    @apply px-4 sm:px-5 lg:px-6;
   }
 }
 

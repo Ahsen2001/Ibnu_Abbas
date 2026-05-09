@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
   BellRing,
@@ -9,13 +9,6 @@ import {
   RefreshCw,
   Users,
 } from 'lucide-react'
-import AdmissionChart from '../../components/analytics/AdmissionChart'
-import AcademicPerformanceChart from '../../components/analytics/AcademicPerformanceChart'
-import AttendanceChart from '../../components/analytics/AttendanceChart'
-import HiflProgressChart from '../../components/analytics/HiflProgressChart'
-import MonthlyTrendChart from '../../components/analytics/MonthlyTrendChart'
-import QuickActionsPanel from '../../components/analytics/QuickActionsPanel'
-import StudentStatsChart from '../../components/analytics/StudentStatsChart'
 import Skeleton from '../../components/Skeleton'
 import {
   analyticsService,
@@ -46,6 +39,14 @@ type OverviewCardProps = {
   iconClass: string
 }
 
+const AdmissionChart = lazy(() => import('../../components/analytics/AdmissionChart'))
+const AcademicPerformanceChart = lazy(() => import('../../components/analytics/AcademicPerformanceChart'))
+const AttendanceChart = lazy(() => import('../../components/analytics/AttendanceChart'))
+const HiflProgressChart = lazy(() => import('../../components/analytics/HiflProgressChart'))
+const MonthlyTrendChart = lazy(() => import('../../components/analytics/MonthlyTrendChart'))
+const QuickActionsPanel = lazy(() => import('../../components/analytics/QuickActionsPanel'))
+const StudentStatsChart = lazy(() => import('../../components/analytics/StudentStatsChart'))
+
 function OverviewCard({ title, value, detail, icon, accentClass, iconClass }: OverviewCardProps) {
   return (
     <article className={`panel border-l-4 p-5 ${accentClass}`.trim()}>
@@ -60,6 +61,16 @@ function OverviewCard({ title, value, detail, icon, accentClass, iconClass }: Ov
         </div>
       </div>
     </article>
+  )
+}
+
+function SectionFallback({ height = 'min-h-[320px]' }: { height?: string }) {
+  return (
+    <section className={`panel p-5 ${height}`}>
+      <Skeleton className="h-6 w-40" />
+      <Skeleton className="mt-4 h-56 w-full" />
+      <Skeleton className="mt-4 h-4 w-3/4" />
+    </section>
   )
 }
 
@@ -267,20 +278,34 @@ function AdminDashboard() {
       </section>
 
       <div className="grid gap-6 2xl:grid-cols-[minmax(0,1.1fr)_360px]">
-        <AdmissionChart data={admissions.data} error={admissions.error} isLoading={admissions.isLoading} onRefresh={admissions.refresh} />
-        <QuickActionsPanel emailStats={email.data} error={email.error} isLoading={email.isLoading} onRefresh={email.refresh} />
+        <Suspense fallback={<SectionFallback />}>
+          <AdmissionChart data={admissions.data} error={admissions.error} isLoading={admissions.isLoading} onRefresh={admissions.refresh} />
+        </Suspense>
+        <Suspense fallback={<SectionFallback height="min-h-[280px]" />}>
+          <QuickActionsPanel emailStats={email.data} error={email.error} isLoading={email.isLoading} onRefresh={email.refresh} />
+        </Suspense>
       </div>
 
       <div className="grid gap-6 2xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-        <StudentStatsChart data={students.data} error={students.error} isLoading={students.isLoading} onRefresh={students.refresh} />
-        <MonthlyTrendChart data={trends.data} error={trends.error} isLoading={trends.isLoading} onRefresh={trends.refresh} />
+        <Suspense fallback={<SectionFallback />}>
+          <StudentStatsChart data={students.data} error={students.error} isLoading={students.isLoading} onRefresh={students.refresh} />
+        </Suspense>
+        <Suspense fallback={<SectionFallback />}>
+          <MonthlyTrendChart data={trends.data} error={trends.error} isLoading={trends.isLoading} onRefresh={trends.refresh} />
+        </Suspense>
       </div>
 
-      <AttendanceChart data={attendance.data} error={attendance.error} isLoading={attendance.isLoading} onRefresh={attendance.refresh} />
+      <Suspense fallback={<SectionFallback height="min-h-[380px]" />}>
+        <AttendanceChart data={attendance.data} error={attendance.error} isLoading={attendance.isLoading} onRefresh={attendance.refresh} />
+      </Suspense>
 
       <div className="grid gap-6 2xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-        <AcademicPerformanceChart data={academic.data} error={academic.error} isLoading={academic.isLoading} onRefresh={academic.refresh} />
-        <HiflProgressChart data={hifl.data} error={hifl.error} isLoading={hifl.isLoading} onRefresh={hifl.refresh} />
+        <Suspense fallback={<SectionFallback />}>
+          <AcademicPerformanceChart data={academic.data} error={academic.error} isLoading={academic.isLoading} onRefresh={academic.refresh} />
+        </Suspense>
+        <Suspense fallback={<SectionFallback />}>
+          <HiflProgressChart data={hifl.data} error={hifl.error} isLoading={hifl.isLoading} onRefresh={hifl.refresh} />
+        </Suspense>
       </div>
     </section>
   )

@@ -1,6 +1,8 @@
-import { BookOpen, ClipboardCheck, GraduationCap, LayoutDashboard, Megaphone, Users } from 'lucide-react'
+import { BookOpen, ClipboardCheck, GraduationCap, LayoutDashboard, Megaphone, Menu, Users } from 'lucide-react'
+import { useCallback, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import AppFooter from '../components/AppFooter'
+import MobileNavBar from '../components/MobileNavBar'
 import Sidebar from '../components/Sidebar'
 import { useAuth } from '../context/AuthContext'
 
@@ -15,19 +17,28 @@ const teacherItems = [
 
 function TeacherLayout() {
   const { logout, user } = useAuth()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const closeSidebar = useCallback(() => setIsSidebarOpen(false), [])
 
   return (
     <div className="grid min-h-screen bg-college-mist lg:grid-cols-[260px_minmax(0,1fr)]">
-      <Sidebar items={teacherItems} title="Teacher Portal" />
+      <Sidebar items={teacherItems} mobileOpen={isSidebarOpen} onClose={closeSidebar} title="Teacher Portal" />
       <div className="flex min-h-screen min-w-0 flex-col">
-        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
-          <h1 className="text-xl font-bold text-college-ink">Teacher Workspace</h1>
+        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-4 sm:px-5">
           <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-slate-500 sm:inline">{user?.name}</span>
-            <button className="btn-secondary" onClick={logout} type="button">Logout</button>
+            <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 lg:hidden" onClick={() => setIsSidebarOpen(true)} type="button">
+              <Menu size={18} />
+              <span>Menu</span>
+            </button>
+            <h1 className="text-lg font-bold text-college-ink sm:text-xl">Teacher Workspace</h1>
+          </div>
+          <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
+            <span className="truncate text-sm text-slate-500">{user?.name}</span>
+            <button className="btn-secondary min-h-10 px-3 sm:px-4" onClick={logout} type="button">Logout</button>
           </div>
         </header>
-        <main className="flex-1 p-5">
+        <MobileNavBar items={teacherItems} />
+        <main className="flex-1 px-4 py-4 sm:p-5">
           <Outlet />
         </main>
         <AppFooter />

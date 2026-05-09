@@ -31,8 +31,8 @@ function ApplicantLayout() {
               <FileText size={16} />
               Applications
             </NavLink>
-            <span className="hidden text-sm text-slate-500 sm:inline">{user?.name}</span>
-            <button className="btn-secondary" onClick={logout} type="button">Logout</button>
+            <span className="max-w-[180px] truncate text-sm text-slate-500">{user?.name}</span>
+            <button className="btn-secondary min-h-10 px-3 sm:px-4" onClick={logout} type="button">Logout</button>
           </div>
         </div>
       </header>
