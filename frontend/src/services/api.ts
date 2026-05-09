@@ -1,6 +1,15 @@
 import axios from 'axios'
 
 const API_TOKEN_KEY = 'iaac_auth_token'
+let activeRequestCount = 0
+
+function emitNetworkActivity() {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.dispatchEvent(new CustomEvent('network:activity', { detail: { count: activeRequestCount } }))
+}
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api',
@@ -11,6 +20,9 @@ export const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
+  activeRequestCount += 1
+  emitNetworkActivity()
+
   const token = localStorage.getItem(API_TOKEN_KEY)
 
   if (token) {
@@ -21,8 +33,16 @@ api.interceptors.request.use((config) => {
 })
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    activeRequestCount = Math.max(0, activeRequestCount - 1)
+    emitNetworkActivity()
+
+    return response
+  },
   (error) => {
+    activeRequestCount = Math.max(0, activeRequestCount - 1)
+    emitNetworkActivity()
+
     if (error.response?.status === 401) {
       localStorage.removeItem(API_TOKEN_KEY)
       window.dispatchEvent(new CustomEvent('auth:expired'))

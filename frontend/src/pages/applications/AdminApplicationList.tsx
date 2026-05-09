@@ -1,5 +1,6 @@
 import { Search } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import Skeleton from '../../components/Skeleton'
 import StatusBadge from '../../components/StatusBadge'
 import type { AdmissionApplication, ApplicationFilters } from '../../services/applicationService'
 import { applicationService } from '../../services/applicationService'
@@ -14,6 +15,7 @@ function AdminApplicationList() {
   const [lastPage, setLastPage] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const isInitialLoading = isLoading && applications.length === 0
 
   useEffect(() => {
     setIsLoading(true)
@@ -98,7 +100,25 @@ function AdminApplicationList() {
             <span>Department</span>
             <span>Status</span>
           </div>
-          {isLoading ? <p className="px-4 py-6 text-sm text-slate-500">Loading applications...</p> : null}
+          {isLoading && applications.length > 0 ? (
+            <div className="border-b border-slate-200 bg-teal-50/70 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-college-green">
+              Refreshing queue...
+            </div>
+          ) : null}
+          {isInitialLoading ? (
+            <div className="grid gap-0 divide-y divide-slate-200 bg-white px-4 py-2">
+              {Array.from({ length: 5 }, (_, index) => (
+                <div className="grid grid-cols-[1.4fr_1fr_0.9fr] items-center gap-2 py-4" key={`application-skeleton-${index}`}>
+                  <div>
+                    <Skeleton className="h-5 w-40" />
+                    <Skeleton className="mt-2 h-4 w-32" />
+                  </div>
+                  <Skeleton className="h-5 w-20" />
+                  <Skeleton className="h-8 w-24 rounded-full" />
+                </div>
+              ))}
+            </div>
+          ) : null}
           {error ? <p className="px-4 py-6 text-sm text-red-600">{error}</p> : null}
           {!isLoading && !error && applications.length === 0 ? <p className="px-4 py-6 text-sm text-slate-500">No applications found.</p> : null}
           {applications.map((application) => (

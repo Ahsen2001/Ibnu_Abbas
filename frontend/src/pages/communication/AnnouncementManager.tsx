@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import FilterPanel from '../../components/FilterPanel'
 import Pagination from '../../components/Pagination'
 import SearchBar from '../../components/SearchBar'
+import Skeleton from '../../components/Skeleton'
 import { communicationService, type AnnouncementPayload, type AnnouncementRecord } from '../../services/communicationService'
 import { getApiErrorMessage } from '../../services/errorService'
 
@@ -51,6 +52,7 @@ function AnnouncementManager() {
   })
   const [pagination, setPagination] = useState({ currentPage: 1, lastPage: 1, total: 0 })
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+  const isInitialLoading = isLoading && announcements.length === 0
 
   const loadAnnouncements = async () => {
     setIsLoading(true)
@@ -279,9 +281,24 @@ function AnnouncementManager() {
         <section className="panel overflow-hidden">
           <div className="border-b border-slate-200 px-4 py-4">
             <h2 className="text-lg font-semibold text-college-ink">Published Announcements</h2>
+            {isLoading && announcements.length > 0 ? (
+              <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-college-green">Refreshing announcements...</p>
+            ) : null}
           </div>
           <div className="grid gap-3 p-4">
-            {isLoading ? <p className="text-sm text-slate-500">Loading announcements...</p> : null}
+            {isInitialLoading ? (
+              <>
+                {Array.from({ length: 3 }, (_, index) => (
+                  <article className="rounded-xl border border-slate-200 p-4" key={`announcement-manager-skeleton-${index}`}>
+                    <Skeleton className="h-6 w-2/3" />
+                    <Skeleton className="mt-3 h-4 w-40" />
+                    <Skeleton className="mt-4 h-4 w-full" />
+                    <Skeleton className="mt-2 h-4 w-full" />
+                    <Skeleton className="mt-2 h-4 w-3/4" />
+                  </article>
+                ))}
+              </>
+            ) : null}
             {!isLoading && announcements.length === 0 ? <p className="text-sm text-slate-500">No announcements matched the current filters.</p> : null}
             {announcements.map((announcement) => (
               <article className="rounded-xl border border-slate-200 p-4" key={announcement.id}>

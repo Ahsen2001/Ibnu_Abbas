@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import FilterPanel from '../../components/FilterPanel'
 import Pagination from '../../components/Pagination'
 import SearchBar from '../../components/SearchBar'
+import TableSkeleton from '../../components/TableSkeleton'
 import { communicationService, type EmailLogRecord } from '../../services/communicationService'
 import { getApiErrorMessage } from '../../services/errorService'
 
@@ -29,6 +30,7 @@ function EmailLogViewer() {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [pagination, setPagination] = useState({ currentPage: 1, lastPage: 1, total: 0 })
+  const isInitialLoading = isLoading && logs.length === 0
 
   const loadLogs = async () => {
     setIsLoading(true)
@@ -105,7 +107,7 @@ function EmailLogViewer() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 bg-white">
-              {isLoading ? <tr><td className="px-4 py-6 text-slate-500" colSpan={5}>Loading email logs...</td></tr> : null}
+              {isInitialLoading ? <TableSkeleton columns={5} rows={6} /> : null}
               {!isLoading && logs.length === 0 ? <tr><td className="px-4 py-6 text-slate-500" colSpan={5}>No email logs matched the current filters.</td></tr> : null}
               {logs.map((log) => (
                 <tr key={log.id}>
@@ -146,6 +148,12 @@ function EmailLogViewer() {
             </tbody>
           </table>
         </div>
+
+        {isLoading && logs.length > 0 ? (
+          <div className="border-t border-slate-200 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-college-green">
+            Refreshing email history...
+          </div>
+        ) : null}
 
         <Pagination currentPage={pagination.currentPage} lastPage={pagination.lastPage} onChange={(page) => setFilters((current) => ({ ...current, page }))} total={pagination.total} />
       </section>

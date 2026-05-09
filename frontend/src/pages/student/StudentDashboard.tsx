@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import DashboardCard from '../../components/DashboardCard'
+import Skeleton from '../../components/Skeleton'
 import { api } from '../../services/api'
 import { getApiErrorMessage } from '../../services/errorService'
 import { studentService, type StudentRecord } from '../../services/studentService'
@@ -56,7 +57,24 @@ function StudentDashboard() {
   }, [student])
 
   if (isLoading) {
-    return <section className="panel p-6 text-sm text-slate-500">Loading student dashboard...</section>
+    return (
+      <div className="grid gap-5">
+        <section className="panel overflow-hidden p-6">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="mt-4 h-10 w-72" />
+          <Skeleton className="mt-3 h-5 w-60" />
+        </section>
+        <section className="grid gap-4 md:grid-cols-3">
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
+        </section>
+        <section className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+          <Skeleton className="h-72 w-full" />
+          <Skeleton className="h-72 w-full" />
+        </section>
+      </div>
+    )
   }
 
   if (!student) {

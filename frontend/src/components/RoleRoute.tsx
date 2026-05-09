@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import PageLoader from './PageLoader'
 
 type RoleRouteProps = {
   allowedRoles: string[]
@@ -9,7 +10,7 @@ function RoleRoute({ allowedRoles }: RoleRouteProps) {
   const { hasRole, isLoading } = useAuth()
 
   if (isLoading) {
-    return <div className="flex min-h-screen items-center justify-center bg-college-mist text-sm text-slate-500">Loading...</div>
+    return <PageLoader title="Checking access" message="Verifying your role and opening the right portal area for you." />
   }
 
   if (!hasRole(allowedRoles)) {

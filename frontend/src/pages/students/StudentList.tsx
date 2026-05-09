@@ -4,6 +4,7 @@ import { Eye, FileBadge2, Pencil, PlusCircle, Trash2 } from 'lucide-react'
 import FilterPanel from '../../components/FilterPanel'
 import Pagination from '../../components/Pagination'
 import SearchBar from '../../components/SearchBar'
+import TableSkeleton from '../../components/TableSkeleton'
 import { getApiErrorMessage } from '../../services/errorService'
 import { studentService, type StudentRecord, type StudentStatus } from '../../services/studentService'
 import IdCardPreview from './IdCardPreview'
@@ -34,6 +35,7 @@ function StudentList() {
     () => students.length > 0 && selectedIds.length === students.length,
     [selectedIds.length, students.length],
   )
+  const isInitialLoading = isLoading && students.length === 0
 
   const loadStudents = async () => {
     setIsLoading(true)
@@ -152,6 +154,9 @@ function StudentList() {
           <div>
             <h2 className="text-lg font-semibold text-college-ink">Student Directory</h2>
             <p className="text-sm text-slate-500">Bulk update status after selecting multiple students.</p>
+            {isLoading && students.length > 0 ? (
+              <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-college-green">Refreshing results...</p>
+            ) : null}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <select className="form-input max-w-44" onChange={(event) => setBulkStatus(event.target.value as StudentStatus)} value={bulkStatus}>
@@ -195,11 +200,7 @@ function StudentList() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 bg-white">
-              {isLoading ? (
-                <tr>
-                  <td className="px-4 py-6 text-slate-500" colSpan={6}>Loading students...</td>
-                </tr>
-              ) : null}
+              {isInitialLoading ? <TableSkeleton columns={6} rows={6} /> : null}
               {!isLoading && students.length === 0 ? (
                 <tr>
                   <td className="px-4 py-6 text-slate-500" colSpan={6}>No students found for the selected filters.</td>

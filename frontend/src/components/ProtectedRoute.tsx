@@ -1,4 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import PageLoader from './PageLoader'
 import { useAuth } from '../context/AuthContext'
 
 function ProtectedRoute() {
@@ -6,7 +7,7 @@ function ProtectedRoute() {
   const location = useLocation()
 
   if (isLoading) {
-    return <div className="flex min-h-screen items-center justify-center bg-college-mist text-sm text-slate-500">Loading...</div>
+    return <PageLoader />
   }
 
   if (!isAuthenticated) {

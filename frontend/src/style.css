@@ -46,4 +46,22 @@
   .status-chip {
     @apply inline-flex min-h-8 items-center rounded-full px-3 text-xs font-semibold uppercase tracking-wide;
   }
+
+  .skeleton {
+    @apply animate-pulse rounded-lg bg-slate-200/80;
+  }
+
+  .loading-bar {
+    animation: loading-slide 1.2s ease-in-out infinite;
+  }
+}
+
+@keyframes loading-slide {
+  0% {
+    transform: translateX(-130%);
+  }
+
+  100% {
+    transform: translateX(360%);
+  }
 }

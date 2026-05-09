@@ -1,6 +1,7 @@
 import { Clock3, Eye } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
+import Skeleton from '../../components/Skeleton'
 import { useAuth } from '../../context/AuthContext'
 import { communicationService, type AnnouncementRecord } from '../../services/communicationService'
 import { getApiErrorMessage } from '../../services/errorService'
@@ -10,6 +11,7 @@ function AnnouncementFeed() {
   const [announcements, setAnnouncements] = useState<AnnouncementRecord[]>([])
   const [filter, setFilter] = useState<'all' | 'college_wide' | 'department' | 'unread' | 'expired'>('all')
   const [isLoading, setIsLoading] = useState(true)
+  const isInitialLoading = isLoading && announcements.length === 0
 
   useEffect(() => {
     communicationService
@@ -60,7 +62,20 @@ function AnnouncementFeed() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {isLoading ? <p className="text-sm text-slate-500">Loading announcements...</p> : null}
+        {isInitialLoading ? (
+          <>
+            {Array.from({ length: 3 }, (_, index) => (
+              <article className="panel p-5" key={`announcement-feed-skeleton-${index}`}>
+                <Skeleton className="h-6 w-2/3" />
+                <Skeleton className="mt-3 h-4 w-32" />
+                <Skeleton className="mt-5 h-4 w-full" />
+                <Skeleton className="mt-2 h-4 w-full" />
+                <Skeleton className="mt-2 h-4 w-5/6" />
+                <Skeleton className="mt-6 h-10 w-32" />
+              </article>
+            ))}
+          </>
+        ) : null}
         {!isLoading && filteredAnnouncements.length === 0 ? <p className="text-sm text-slate-500">No announcements available in this view.</p> : null}
         {filteredAnnouncements.map((announcement) => (
           <article

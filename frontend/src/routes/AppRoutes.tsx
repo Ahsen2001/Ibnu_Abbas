@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from '../components/ProtectedRoute'
 import RoleRoute from '../components/RoleRoute'
 import AdminLayout from '../layouts/AdminLayout'
+import ApplicantLayout from '../layouts/ApplicantLayout'
 import PublicLayout from '../layouts/PublicLayout'
 import StudentLayout from '../layouts/StudentLayout'
 import TeacherLayout from '../layouts/TeacherLayout'
@@ -88,7 +89,10 @@ function AppRoutes() {
         </Route>
 
         <Route element={<RoleRoute allowedRoles={['applicant']} />}>
-          <Route element={<ApplicantApplicationsPage />} path="applicant/applications" />
+          <Route element={<ApplicantLayout />} path="applicant">
+            <Route element={<Navigate replace to="applications" />} index />
+            <Route element={<ApplicantApplicationsPage />} path="applications" />
+          </Route>
         </Route>
       </Route>
 

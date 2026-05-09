@@ -3,6 +3,7 @@ import toast from 'react-hot-toast'
 import { PlusCircle } from 'lucide-react'
 import ApplicationStatus from '../applications/ApplicationStatus'
 import ApplicationWizard from '../applications/ApplicationWizard'
+import Skeleton from '../../components/Skeleton'
 import StatusBadge from '../../components/StatusBadge'
 import type { AdmissionApplication } from '../../services/applicationService'
 import { applicationService } from '../../services/applicationService'
@@ -13,6 +14,8 @@ function ApplicantApplicationsPage() {
   const [selected, setSelected] = useState<AdmissionApplication | null>(null)
   const [wizardOpen, setWizardOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+
+  const isInitialLoading = isLoading && applications.length === 0
 
   useEffect(() => {
     applicationService
@@ -54,9 +57,27 @@ function ApplicantApplicationsPage() {
 
       <div className="grid gap-5 xl:grid-cols-[340px_minmax(0,1fr)]">
         <aside className="panel p-4">
-          <h2 className="text-lg font-semibold text-college-ink">My Applications</h2>
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold text-college-ink">My Applications</h2>
+            {isLoading && applications.length > 0 ? (
+              <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-college-green">
+                Refreshing latest status...
+              </span>
+            ) : null}
+          </div>
           <div className="mt-4 grid gap-3">
-            {isLoading ? <p className="text-sm text-slate-500">Loading applications...</p> : null}
+            {isInitialLoading ? (
+              <>
+                <div className="rounded-lg border border-slate-200 bg-white p-4">
+                  <Skeleton className="h-5 w-40" />
+                  <Skeleton className="mt-3 h-4 w-28" />
+                </div>
+                <div className="rounded-lg border border-slate-200 bg-white p-4">
+                  <Skeleton className="h-5 w-44" />
+                  <Skeleton className="mt-3 h-4 w-24" />
+                </div>
+              </>
+            ) : null}
             {!isLoading && applications.length === 0 ? <p className="text-sm text-slate-500">No applications yet. Start a new one to begin the admission process.</p> : null}
             {applications.map((application) => (
               <button
@@ -90,6 +111,17 @@ function ApplicantApplicationsPage() {
           ) : null}
 
           {selected ? <ApplicationStatus application={selected} /> : null}
+          {isInitialLoading && !selected ? (
+            <section className="panel p-5">
+              <Skeleton className="h-7 w-56" />
+              <Skeleton className="mt-4 h-24 w-full" />
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
+              </div>
+            </section>
+          ) : null}
         </div>
       </div>
     </section>

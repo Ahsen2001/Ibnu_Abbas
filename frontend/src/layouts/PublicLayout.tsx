@@ -1,9 +1,10 @@
 import { Link, Outlet } from 'react-router-dom'
+import AppFooter from '../components/AppFooter'
 import AppLogo from '../components/AppLogo'
 
 function PublicLayout() {
   return (
-    <div className="min-h-screen bg-college-mist">
+    <div className="flex min-h-screen flex-col bg-college-mist">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <Link className="text-college-ink" to="/">
@@ -15,9 +16,10 @@ function PublicLayout() {
           </nav>
         </div>
       </header>
-      <main>
+      <main className="flex-1">
         <Outlet />
       </main>
+      <AppFooter />
     </div>
   )
 }
