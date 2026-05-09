@@ -1,10 +1,11 @@
-import { BookOpen, GraduationCap, LayoutDashboard } from 'lucide-react'
+import { BookOpen, GraduationCap, LayoutDashboard, Megaphone } from 'lucide-react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import { useAuth } from '../context/AuthContext'
 
 const studentItems = [
   { label: 'Dashboard', to: '/student', icon: LayoutDashboard },
+  { label: 'Announcements', to: '/student/announcements', icon: Megaphone },
   { label: 'Shareea Records', to: '/student/shareea', icon: BookOpen },
   { label: 'Hifl Progress', to: '/student/hifl', icon: GraduationCap },
 ]

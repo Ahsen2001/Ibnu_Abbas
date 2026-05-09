@@ -5,38 +5,30 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Announcement extends Model
+class AcademicCalendar extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
         'title',
-        'body',
-        'target_audience',
+        'description',
+        'event_date',
+        'end_date',
+        'event_type',
         'department',
-        'published_at',
-        'expires_at',
         'created_by',
-        'status',
     ];
 
     protected function casts(): array
     {
         return [
-            'published_at' => 'datetime',
-            'expires_at' => 'datetime',
+            'event_date' => 'date',
+            'end_date' => 'date',
         ];
     }
 
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
-    }
-
-    public function readers()
-    {
-        return $this->belongsToMany(User::class, 'announcement_reads')
-            ->withPivot('read_at')
-            ->withTimestamps();
     }
 }

@@ -11,11 +11,11 @@ class EmailLog extends Model
 
     protected $fillable = [
         'sent_by',
+        'recipient_email',
+        'recipient_name',
         'subject',
-        'template',
-        'recipients',
-        'recipient_count',
-        'audience',
+        'body',
+        'template_used',
         'status',
         'sent_at',
         'error_message',
@@ -24,8 +24,6 @@ class EmailLog extends Model
     protected function casts(): array
     {
         return [
-            'recipients' => 'array',
-            'recipient_count' => 'integer',
             'sent_at' => 'datetime',
         ];
     }

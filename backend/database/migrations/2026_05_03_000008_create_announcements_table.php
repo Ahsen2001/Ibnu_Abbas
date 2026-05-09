@@ -11,26 +11,18 @@ return new class extends Migration
         Schema::create('announcements', function (Blueprint $table) {
             $table->id();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('department_id')->nullable()->constrained('departments')->nullOnDelete();
             $table->string('title');
             $table->longText('body');
-            $table->enum('audience', [
-                'all',
-                'applicants',
-                'students',
-                'teachers',
-                'shareea',
-                'hifl',
-                'admin',
-            ])->default('all')->index();
-            $table->string('pdf_path')->nullable();
-            $table->boolean('is_published')->default(false)->index();
+            $table->enum('target_audience', ['all', 'students', 'teachers', 'admin'])->default('all')->index();
+            $table->enum('department', ['shareea', 'hifl'])->nullable()->index();
             $table->timestamp('published_at')->nullable()->index();
+            $table->timestamp('expires_at')->nullable()->index();
+            $table->enum('status', ['draft', 'published', 'archived'])->default('draft')->index();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['audience', 'is_published']);
-            $table->index(['department_id', 'published_at']);
+            $table->index(['target_audience', 'status']);
+            $table->index(['department', 'status']);
         });
     }
 

@@ -11,26 +11,19 @@ return new class extends Migration
         Schema::create('email_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sent_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('recipient_email')->index();
+            $table->string('recipient_name')->nullable();
             $table->string('subject');
-            $table->string('template')->nullable()->index();
-            $table->json('recipients');
-            $table->unsignedInteger('recipient_count')->default(0)->index();
-            $table->enum('audience', [
-                'all',
-                'applicants',
-                'students',
-                'teachers',
-                'selected_users',
-                'filtered_group',
-            ])->default('selected_users')->index();
-            $table->enum('status', ['queued', 'sending', 'sent', 'failed'])->default('queued')->index();
+            $table->longText('body');
+            $table->string('template_used')->nullable()->index();
+            $table->enum('status', ['sent', 'failed', 'pending'])->default('pending')->index();
             $table->timestamp('sent_at')->nullable()->index();
             $table->text('error_message')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
+            $table->index(['recipient_email', 'status']);
             $table->index(['sent_by', 'status']);
-            $table->index(['audience', 'status']);
         });
     }
 

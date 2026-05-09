@@ -17,6 +17,12 @@ import LoginPage from '../pages/auth/LoginPage'
 import RegisterPage from '../pages/auth/RegisterPage'
 import ResetPasswordPage from '../pages/auth/ResetPasswordPage'
 import VerifyOtpPage from '../pages/auth/VerifyOtpPage'
+import AcademicCalendar from '../pages/communication/AcademicCalendar'
+import AnnouncementFeed from '../pages/communication/AnnouncementFeed'
+import AnnouncementManager from '../pages/communication/AnnouncementManager'
+import BulkEmailComposer from '../pages/communication/BulkEmailComposer'
+import EmailLogViewer from '../pages/communication/EmailLogViewer'
+import EmailTemplateEditor from '../pages/communication/EmailTemplateEditor'
 import HomePage from '../pages/public/HomePage'
 import NotFoundPage from '../pages/public/NotFoundPage'
 import UnauthorizedPage from '../pages/public/UnauthorizedPage'
@@ -51,15 +57,20 @@ function AppRoutes() {
             <Route element={<TeacherList />} path="teachers" />
             <Route element={<AttendanceDashboard />} path="attendance" />
             <Route element={<AttendanceReport />} path="attendance/report" />
+            <Route element={<AnnouncementManager />} path="announcements" />
+            <Route element={<BulkEmailComposer />} path="email" />
+            <Route element={<EmailLogViewer />} path="email/logs" />
+            <Route element={<EmailTemplateEditor />} path="email-templates" />
+            <Route element={<AcademicCalendar />} path="calendar" />
             <Route element={<ModulePage description="Track Shareea subjects, exams, marks, grades, and academic progression." title="Shareea Records" />} path="shareea" />
             <Route element={<ModulePage description="Track daily sabaq, revision, memorized pages, and completion percentage." title="Hifl Progress" />} path="hifl" />
-            <Route element={<ModulePage description="Publish notices, interview lists, updates, and PDF-linked announcements." title="Announcements" />} path="announcements" />
           </Route>
         </Route>
 
         <Route element={<RoleRoute allowedRoles={['student']} />}>
           <Route element={<StudentLayout />} path="student">
             <Route index element={<StudentDashboard />} />
+            <Route element={<AnnouncementFeed />} path="announcements" />
             <Route element={<ModulePage description="Student view of Shareea academic records and exam results." title="My Shareea Records" />} path="shareea" />
             <Route element={<ModulePage description="Student view of Hifl memorization and revision progress." title="My Hifl Progress" />} path="hifl" />
           </Route>
@@ -70,6 +81,7 @@ function AppRoutes() {
             <Route index element={<TeacherDashboard />} />
             <Route element={<ModulePage description="Teacher view for assigned student lookup and progress review." title="Assigned Students" />} path="students" />
             <Route element={<BulkAttendance />} path="attendance" />
+            <Route element={<AnnouncementFeed />} path="announcements" />
             <Route element={<ModulePage description="Teacher workspace for Shareea record entry and assessment tracking." title="Shareea Records" />} path="shareea" />
             <Route element={<ModulePage description="Teacher workspace for Hifl sabaq and revision tracking." title="Hifl Progress" />} path="hifl" />
           </Route>

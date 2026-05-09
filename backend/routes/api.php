@@ -4,8 +4,11 @@ use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\ApplicationController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CalendarController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\DepartmentController;
+use App\Http\Controllers\Api\EmailController;
+use App\Http\Controllers\Api\EmailTemplateController;
 use App\Http\Controllers\Api\HiflController;
 use App\Http\Controllers\Api\ShareeaController;
 use App\Http\Controllers\Api\StudentController;
@@ -32,6 +35,9 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::get('/announcements', [AnnouncementController::class, 'index']);
+    Route::post('/announcements/{announcement}/read', [AnnouncementController::class, 'markRead']);
+    Route::get('/calendar', [CalendarController::class, 'index']);
+    Route::get('/calendar/upcoming', [CalendarController::class, 'upcoming']);
 
     Route::prefix('admin')->middleware('role:admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index']);
@@ -43,7 +49,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('hifl-progress', HiflController::class)->parameters([
             'hifl-progress' => 'hifl',
         ]);
-        Route::apiResource('announcements', AnnouncementController::class)->except(['index']);
     });
 
     Route::middleware('role:admin')->group(function () {
@@ -66,6 +71,26 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/teachers/{teacher}/subjects', [TeacherController::class, 'assignSubject']);
         Route::post('/teachers/{teacher}/students', [TeacherController::class, 'assignStudents']);
         Route::get('/teachers/{teacher}/schedule', [TeacherController::class, 'schedule']);
+        Route::post('/announcements', [AnnouncementController::class, 'store']);
+        Route::put('/announcements/{announcement}', [AnnouncementController::class, 'update']);
+        Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy']);
+        Route::patch('/announcements/{announcement}/publish', [AnnouncementController::class, 'publish']);
+        Route::patch('/announcements/{announcement}/archive', [AnnouncementController::class, 'archive']);
+
+        Route::post('/email/send-bulk', [EmailController::class, 'sendBulk']);
+        Route::post('/email/send-single', [EmailController::class, 'sendSingle']);
+        Route::get('/email/logs', [EmailController::class, 'getLogs']);
+        Route::post('/email/resend/{emailLog}', [EmailController::class, 'resend']);
+
+        Route::get('/email-templates', [EmailTemplateController::class, 'index']);
+        Route::post('/email-templates', [EmailTemplateController::class, 'store']);
+        Route::put('/email-templates/{emailTemplate}', [EmailTemplateController::class, 'update']);
+        Route::delete('/email-templates/{emailTemplate}', [EmailTemplateController::class, 'destroy']);
+        Route::get('/email-templates/{emailTemplate}/preview', [EmailTemplateController::class, 'preview']);
+
+        Route::post('/calendar', [CalendarController::class, 'store']);
+        Route::put('/calendar/{calendar}', [CalendarController::class, 'update']);
+        Route::delete('/calendar/{calendar}', [CalendarController::class, 'destroy']);
     });
 
     Route::middleware('role:applicant')->group(function () {

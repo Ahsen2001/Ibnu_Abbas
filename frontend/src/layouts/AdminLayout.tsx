@@ -1,4 +1,4 @@
-import { Bell, BookOpen, ClipboardCheck, FileText, GraduationCap, LayoutDashboard, Megaphone, Users } from 'lucide-react'
+import { Bell, BookOpen, CalendarDays, ClipboardCheck, FileCode2, FileText, GraduationCap, LayoutDashboard, Mail, Megaphone, Users } from 'lucide-react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import { useAuth } from '../context/AuthContext'
@@ -13,6 +13,10 @@ const adminItems = [
   { label: 'Shareea', to: '/admin/shareea', icon: BookOpen },
   { label: 'Hifl', to: '/admin/hifl', icon: Bell },
   { label: 'Announcements', to: '/admin/announcements', icon: Megaphone },
+  { label: 'Bulk Email', to: '/admin/email', icon: Mail },
+  { label: 'Email Logs', to: '/admin/email/logs', icon: FileText },
+  { label: 'Templates', to: '/admin/email-templates', icon: FileCode2 },
+  { label: 'Calendar', to: '/admin/calendar', icon: CalendarDays },
 ]
 
 function AdminLayout() {

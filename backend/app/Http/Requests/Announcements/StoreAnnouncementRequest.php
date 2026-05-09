@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Announcements;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreAnnouncementRequest extends FormRequest
 {
@@ -14,13 +15,13 @@ class StoreAnnouncementRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'department_id' => ['nullable', 'exists:departments,id'],
             'title' => ['required', 'string', 'max:255'],
             'body' => ['required', 'string'],
-            'audience' => ['nullable', 'in:all,applicants,students,teachers,shareea,hifl,admin'],
-            'pdf_path' => ['nullable', 'string', 'max:255'],
-            'is_published' => ['nullable', 'boolean'],
+            'target_audience' => ['required', Rule::in(['all', 'students', 'teachers', 'admin'])],
+            'department' => ['nullable', Rule::in(['shareea', 'hifl'])],
+            'status' => ['nullable', Rule::in(['draft', 'published', 'archived'])],
             'published_at' => ['nullable', 'date'],
+            'expires_at' => ['nullable', 'date', 'after_or_equal:published_at'],
         ];
     }
 }

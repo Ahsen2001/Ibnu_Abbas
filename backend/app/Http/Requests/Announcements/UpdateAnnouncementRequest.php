@@ -2,18 +2,20 @@
 
 namespace App\Http\Requests\Announcements;
 
+use Illuminate\Validation\Rule;
+
 class UpdateAnnouncementRequest extends StoreAnnouncementRequest
 {
     public function rules(): array
     {
         return [
-            'department_id' => ['nullable', 'exists:departments,id'],
             'title' => ['sometimes', 'string', 'max:255'],
             'body' => ['sometimes', 'string'],
-            'audience' => ['nullable', 'in:all,applicants,students,teachers,shareea,hifl,admin'],
-            'pdf_path' => ['nullable', 'string', 'max:255'],
-            'is_published' => ['nullable', 'boolean'],
+            'target_audience' => ['sometimes', Rule::in(['all', 'students', 'teachers', 'admin'])],
+            'department' => ['nullable', Rule::in(['shareea', 'hifl'])],
+            'status' => ['nullable', Rule::in(['draft', 'published', 'archived'])],
             'published_at' => ['nullable', 'date'],
+            'expires_at' => ['nullable', 'date', 'after_or_equal:published_at'],
         ];
     }
 }

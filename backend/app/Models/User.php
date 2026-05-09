@@ -85,8 +85,20 @@ class User extends Authenticatable
         return $this->hasMany(Announcement::class, 'created_by');
     }
 
+    public function readAnnouncements()
+    {
+        return $this->belongsToMany(Announcement::class, 'announcement_reads')
+            ->withPivot('read_at')
+            ->withTimestamps();
+    }
+
     public function emailLogs()
     {
         return $this->hasMany(EmailLog::class, 'sent_by');
+    }
+
+    public function academicCalendarEvents()
+    {
+        return $this->hasMany(AcademicCalendar::class, 'created_by');
     }
 }
