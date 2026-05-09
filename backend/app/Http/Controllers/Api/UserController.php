@@ -40,7 +40,7 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        return $user->load('role', 'student.department', 'teacher.department');
+        return $user->load('role', 'student', 'teacher');
     }
 
     public function update(UpdateUserRequest $request, User $user)

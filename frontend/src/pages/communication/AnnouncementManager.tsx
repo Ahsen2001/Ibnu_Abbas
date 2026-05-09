@@ -30,6 +30,8 @@ const emptyForm: AnnouncementFormState = {
 
 function getStatusChip(status: string) {
   switch (status) {
+    case 'scheduled':
+      return 'bg-blue-50 text-blue-700'
     case 'published':
       return 'bg-emerald-50 text-emerald-700'
     case 'archived':
@@ -37,6 +39,14 @@ function getStatusChip(status: string) {
     default:
       return 'bg-amber-50 text-amber-700'
   }
+}
+
+function getDisplayStatus(announcement: AnnouncementRecord) {
+  if (announcement.status === 'published' && announcement.published_at) {
+    return new Date(announcement.published_at).getTime() > Date.now() ? 'scheduled' : 'published'
+  }
+
+  return announcement.status
 }
 
 function AnnouncementManager() {
@@ -280,7 +290,7 @@ function AnnouncementManager() {
 
         <section className="panel overflow-hidden">
           <div className="border-b border-slate-200 px-4 py-4">
-            <h2 className="text-lg font-semibold text-college-ink">Published Announcements</h2>
+            <h2 className="text-lg font-semibold text-college-ink">Announcement Library</h2>
             {isLoading && announcements.length > 0 ? (
               <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-college-green">Refreshing announcements...</p>
             ) : null}
@@ -306,7 +316,7 @@ function AnnouncementManager() {
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="text-lg font-semibold text-college-ink">{announcement.title}</h3>
-                      <span className={`status-chip ${getStatusChip(announcement.status)}`}>{announcement.status}</span>
+                      <span className={`status-chip ${getStatusChip(getDisplayStatus(announcement))}`}>{getDisplayStatus(announcement)}</span>
                     </div>
                     <p className="mt-2 text-xs font-medium uppercase tracking-wide text-slate-400">
                       Audience: {announcement.target_audience} {announcement.department ? `| Department: ${announcement.department}` : ''}

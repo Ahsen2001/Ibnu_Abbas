@@ -209,7 +209,7 @@ function BulkEmailComposer() {
                 onClick={async () => {
                   setIsSending(true)
                   try {
-                    await communicationService.sendBulkEmail({
+                    const response = await communicationService.sendBulkEmail({
                       recipient_filter: recipientFilter,
                       department: department || undefined,
                       batch: batch || undefined,
@@ -219,7 +219,7 @@ function BulkEmailComposer() {
                       body,
                       variables: previewVariables,
                     })
-                    toast.success('Bulk emails queued successfully.')
+                    toast.success(response.message)
                     setShowConfirm(false)
                   } catch (error) {
                     toast.error(getApiErrorMessage(error, 'Unable to queue bulk emails.'))

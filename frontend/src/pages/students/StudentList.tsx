@@ -32,8 +32,8 @@ function StudentList() {
   const [pagination, setPagination] = useState({ currentPage: 1, lastPage: 1, total: 0 })
 
   const allSelected = useMemo(
-    () => students.length > 0 && selectedIds.length === students.length,
-    [selectedIds.length, students.length],
+    () => students.length > 0 && students.every((student) => selectedIds.includes(student.id)),
+    [selectedIds, students],
   )
   const isInitialLoading = isLoading && students.length === 0
 
@@ -71,6 +71,10 @@ function StudentList() {
     loadStudents()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters])
+
+  useEffect(() => {
+    setSelectedIds((current) => current.filter((id) => students.some((student) => student.id === id)))
+  }, [students])
 
   const openModal = (mode: 'create' | 'edit' | 'id-card', student?: StudentRecord | null) => {
     setModalMode(mode)
@@ -190,7 +194,11 @@ function StudentList() {
             <thead className="bg-slate-50 text-left text-xs font-bold uppercase tracking-wide text-slate-500">
               <tr>
                 <th className="px-4 py-3">
-                  <input checked={allSelected} onChange={() => setSelectedIds(allSelected ? [] : students.map((student) => student.id))} type="checkbox" />
+                  <input
+                    checked={allSelected}
+                    onChange={() => setSelectedIds(allSelected ? [] : students.map((student) => student.id))}
+                    type="checkbox"
+                  />
                 </th>
                 <th className="px-4 py-3">Student</th>
                 <th className="px-4 py-3">Department</th>

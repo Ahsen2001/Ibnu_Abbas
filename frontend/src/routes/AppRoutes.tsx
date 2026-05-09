@@ -8,6 +8,7 @@ import StudentLayout from '../layouts/StudentLayout'
 import TeacherLayout from '../layouts/TeacherLayout'
 import AdminDashboard from '../pages/admin/AdminDashboard'
 import ModulePage from '../pages/admin/ModulePage'
+import UserManagementPage from '../pages/admin/UserManagementPage'
 import ApplicantApplicationsPage from '../pages/applicant/ApplicantApplicationsPage'
 import AttendanceDashboard from '../pages/attendance/AttendanceDashboard'
 import AttendanceReport from '../pages/attendance/AttendanceReport'
@@ -52,7 +53,7 @@ function AppRoutes() {
         <Route element={<RoleRoute allowedRoles={adminRoles} />}>
           <Route element={<AdminLayout />} path="admin">
             <Route index element={<AdminDashboard />} />
-            <Route element={<ModulePage description="Manage user accounts, assigned roles, account status, and portal access." title="Users" />} path="users" />
+            <Route element={<UserManagementPage />} path="users" />
             <Route element={<AdminApplicationList />} path="applications" />
             <Route element={<StudentList />} path="students" />
             <Route element={<TeacherList />} path="teachers" />

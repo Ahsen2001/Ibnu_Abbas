@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Email\SendBulkEmailRequest;
 use App\Http\Requests\Email\SendSingleEmailRequest;
 use App\Jobs\SendCollegeEmailJob;
+use App\Mail\CollegeMail;
 use App\Models\EmailLog;
 use App\Models\EmailTemplate;
 use App\Models\Student;
@@ -15,7 +16,9 @@ use App\Services\TemplateRendererService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Throwable;
 
 class EmailController extends Controller
 {
@@ -60,6 +63,37 @@ class EmailController extends Controller
             });
         });
 
+        $this->dispatchLogs($logs);
+
+        if ($this->shouldSendImmediately()) {
+            $freshLogs = EmailLog::query()
+                ->whereIn('id', $logs->pluck('id'))
+                ->get();
+
+            $failedCount = $freshLogs->where('status', 'failed')->count();
+            $sentCount = $freshLogs->where('status', 'sent')->count();
+
+            if ($failedCount === $freshLogs->count()) {
+                return response()->json([
+                    'message' => 'Email delivery failed for every selected recipient. Check the email logs for the SMTP error.',
+                    'recipient_count' => $freshLogs->count(),
+                    'sent_count' => $sentCount,
+                    'failed_count' => $failedCount,
+                    'log_ids' => $freshLogs->pluck('id')->values(),
+                ], 422);
+            }
+
+            return response()->json([
+                'message' => $failedCount > 0
+                    ? "Sent {$sentCount} emails and {$failedCount} failed. Review the email logs for details."
+                    : 'Bulk emails sent successfully.',
+                'recipient_count' => $freshLogs->count(),
+                'sent_count' => $sentCount,
+                'failed_count' => $failedCount,
+                'log_ids' => $freshLogs->pluck('id')->values(),
+            ]);
+        }
+
         return response()->json([
             'message' => 'Bulk emails queued successfully.',
             'recipient_count' => $logs->count(),
@@ -91,12 +125,21 @@ class EmailController extends Controller
             'status' => 'pending',
         ]);
 
-        SendCollegeEmailJob::dispatch($log->id)->afterCommit();
+        $this->dispatchLog($log);
+
+        $log = $log->fresh();
+
+        if ($this->shouldSendImmediately() && $log?->status === 'failed') {
+            return response()->json([
+                'message' => 'Email delivery failed. Check your SMTP settings or the email log details.',
+                'log' => $log,
+            ], 422);
+        }
 
         return response()->json([
-            'message' => 'Email queued successfully.',
+            'message' => $this->shouldSendImmediately() ? 'Email sent successfully.' : 'Email queued successfully.',
             'log' => $log,
-        ], 202);
+        ], $this->shouldSendImmediately() ? 200 : 202);
     }
 
     public function getLogs(Request $request)
@@ -124,12 +167,21 @@ class EmailController extends Controller
             'error_message' => null,
         ]);
 
-        SendCollegeEmailJob::dispatch($emailLog->id)->afterCommit();
+        $this->dispatchLog($emailLog->fresh());
+
+        $emailLog = $emailLog->fresh();
+
+        if ($this->shouldSendImmediately() && $emailLog?->status === 'failed') {
+            return response()->json([
+                'message' => 'Email retry failed. Check the email log details for the SMTP error.',
+                'log' => $emailLog,
+            ], 422);
+        }
 
         return response()->json([
-            'message' => 'Email retry queued successfully.',
-            'log' => $emailLog->fresh(),
-        ], 202);
+            'message' => $this->shouldSendImmediately() ? 'Email retry sent successfully.' : 'Email retry queued successfully.',
+            'log' => $emailLog,
+        ], $this->shouldSendImmediately() ? 200 : 202);
     }
 
     private function resolveRecipients(array $data): Collection
@@ -212,5 +264,50 @@ class EmailController extends Controller
             ]);
 
         return $students->merge($teachers);
+    }
+
+    private function dispatchLogs(Collection $logs): void
+    {
+        $logs->each(fn (EmailLog $log) => $this->dispatchLog($log));
+    }
+
+    private function dispatchLog(EmailLog $log): void
+    {
+        if ($this->shouldSendImmediately()) {
+            $this->sendImmediately($log);
+
+            return;
+        }
+
+        SendCollegeEmailJob::dispatch($log->id)->afterCommit();
+    }
+
+    private function shouldSendImmediately(): bool
+    {
+        return app()->environment('local') && config('queue.default') === 'database';
+    }
+
+    private function sendImmediately(EmailLog $log): void
+    {
+        try {
+            Mail::to($log->recipient_email, $log->recipient_name)
+                ->send(new CollegeMail(
+                    mailSubject: $log->subject,
+                    bodyHtml: $log->body,
+                    recipientName: $log->recipient_name,
+                ));
+
+            $log->update([
+                'status' => 'sent',
+                'sent_at' => now(),
+                'error_message' => null,
+            ]);
+        } catch (Throwable $exception) {
+            $log->update([
+                'status' => 'failed',
+                'sent_at' => null,
+                'error_message' => $exception->getMessage(),
+            ]);
+        }
     }
 }

@@ -10,6 +10,7 @@ use App\Models\Role;
 use App\Models\Student;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -112,6 +113,29 @@ class StudentController extends Controller
         $student->delete();
 
         return response()->noContent();
+    }
+
+    public function bulkUpdateStatus(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'student_ids' => ['required', 'array', 'min:1'],
+            'student_ids.*' => ['integer', 'exists:students,id'],
+            'status' => ['required', 'in:' . implode(',', [
+                Student::STATUS_ACTIVE,
+                Student::STATUS_INACTIVE,
+                Student::STATUS_GRADUATED,
+                Student::STATUS_WITHDRAWN,
+            ])],
+        ]);
+
+        $updated = Student::query()
+            ->whereIn('id', $data['student_ids'])
+            ->update(['status' => $data['status']]);
+
+        return response()->json([
+            'message' => 'Student statuses updated successfully.',
+            'updated_count' => $updated,
+        ]);
     }
 
     public function generateIdCard(Student $student)

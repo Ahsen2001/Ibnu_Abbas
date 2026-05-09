@@ -113,6 +113,10 @@ function replaceTokens(content: string, variables: Record<string, string>) {
 }
 
 export const communicationService = {
+  listPublicAnnouncements: async (params: Record<string, string | number | undefined> = {}) => {
+    const { data } = await api.get<PaginatedResponse<AnnouncementRecord>>('/public/announcements', { params })
+    return data
+  },
   listAnnouncements: async (params: Record<string, string | number | undefined> = {}) => {
     const { data } = await api.get<PaginatedResponse<AnnouncementRecord>>('/announcements', { params })
     return data

@@ -149,7 +149,6 @@ export const studentService = {
       '/students',
       buildFormData(values, photo, documents),
       {
-        headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (event) => {
           if (!event.total || !onProgress) return
           onProgress(Math.round((event.loaded / event.total) * 100))
@@ -169,10 +168,8 @@ export const studentService = {
     onProgress?: (progress: number) => void,
   ) => {
     const formData = buildFormData(values, photo, documents, existingDocuments, removePhoto)
-    formData.append('_method', 'PUT')
 
-    const { data } = await api.post<StudentRecord>(`/students/${id}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+    const { data } = await api.put<StudentRecord>(`/students/${id}`, formData, {
       onUploadProgress: (event) => {
         if (!event.total || !onProgress) return
         onProgress(Math.round((event.loaded / event.total) * 100))
@@ -198,7 +195,10 @@ export const studentService = {
     window.URL.revokeObjectURL(url)
   },
   bulkUpdateStatus: async (ids: number[], status: StudentStatus) => {
-    await Promise.all(ids.map((id) => studentService.update(id, { status }, null, [], [], false)))
+    await api.patch('/students/bulk-status', {
+      student_ids: ids,
+      status,
+    })
   },
   getFileUrl: (path: string | null | undefined) => {
     if (!path) {

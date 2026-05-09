@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AnnouncementController;
+use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\ApplicationController;
 use App\Http\Controllers\Api\AuthController;
@@ -14,10 +15,12 @@ use App\Http\Controllers\Api\ShareeaController;
 use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\TeacherController;
 use App\Http\Controllers\Api\UserController;
+use App\Models\Role;
 use App\Models\Subject;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn () => ['status' => 'ok', 'app' => 'Ibnu Abbas Arabic College API']);
+Route::get('/public/announcements', [AnnouncementController::class, 'publicFeed']);
 
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -41,6 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('admin')->middleware('role:admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index']);
+        Route::get('/roles', fn () => Role::query()->orderBy('name')->get(['id', 'name', 'slug']));
         Route::apiResource('users', UserController::class);
         Route::apiResource('departments', DepartmentController::class);
         Route::apiResource('shareea-records', ShareeaController::class)->parameters([
@@ -52,12 +56,21 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::middleware('role:admin')->group(function () {
+        Route::get('/analytics/overview', [AnalyticsController::class, 'overview']);
+        Route::get('/analytics/admissions', [AnalyticsController::class, 'admissionStats']);
+        Route::get('/analytics/students', [AnalyticsController::class, 'studentStats']);
+        Route::get('/analytics/attendance', [AnalyticsController::class, 'attendanceStats']);
+        Route::get('/analytics/academic', [AnalyticsController::class, 'academicStats']);
+        Route::get('/analytics/hifl', [AnalyticsController::class, 'hiflStats']);
+        Route::get('/analytics/email', [AnalyticsController::class, 'emailStats']);
+        Route::get('/analytics/trends', [AnalyticsController::class, 'monthlyTrends']);
         Route::get('/applications', [ApplicationController::class, 'index']);
         Route::patch('/applications/{application}/status', [ApplicationController::class, 'updateStatus']);
         Route::post('/applications/{application}/interview', [ApplicationController::class, 'scheduleInterview']);
         Route::get('/subjects', fn () => Subject::query()->where('is_active', true)->orderBy('name')->get());
         Route::get('/students', [StudentController::class, 'index']);
         Route::post('/students', [StudentController::class, 'store']);
+        Route::patch('/students/bulk-status', [StudentController::class, 'bulkUpdateStatus']);
         Route::get('/students/search', [StudentController::class, 'search']);
         Route::get('/students/{student}', [StudentController::class, 'show']);
         Route::put('/students/{student}', [StudentController::class, 'update']);

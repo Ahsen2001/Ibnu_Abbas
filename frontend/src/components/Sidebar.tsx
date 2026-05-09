@@ -15,19 +15,19 @@ type SidebarProps = {
 
 function Sidebar({ title, items }: SidebarProps) {
   return (
-    <aside className="bg-college-deep px-4 py-6 text-white lg:min-h-screen">
+    <aside className="bg-college-deep px-4 py-4 text-white lg:min-h-screen lg:px-4 lg:py-6">
       <div className="mb-7 px-2">
         <AppLogo />
         <p className="mt-4 text-xs font-semibold uppercase text-white/50">{title}</p>
       </div>
-      <nav className="grid gap-1" aria-label={title}>
+      <nav className="flex gap-2 overflow-x-auto pb-2 lg:grid lg:gap-1 lg:overflow-visible lg:pb-0" aria-label={title}>
         {items.map((item) => {
           const Icon = item.icon
           return (
             <NavLink
               className={({ isActive }) =>
                 [
-                  'flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition',
+                  'flex min-h-11 min-w-max items-center gap-3 rounded-lg px-3 text-sm font-medium transition lg:min-w-0',
                   isActive ? 'bg-white/12 text-white' : 'text-white/72 hover:bg-white/8 hover:text-white',
                 ].join(' ')
               }

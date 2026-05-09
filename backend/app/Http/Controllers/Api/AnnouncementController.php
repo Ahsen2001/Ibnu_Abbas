@@ -11,6 +11,36 @@ use Illuminate\Http\Request;
 
 class AnnouncementController extends Controller
 {
+    public function publicFeed(Request $request)
+    {
+        $announcements = Announcement::query()
+            ->with('creator.role')
+            ->where('status', 'published')
+            ->where('target_audience', 'all')
+            ->whereNull('department')
+            ->where(function ($inner) {
+                $inner->whereNull('published_at')->orWhere('published_at', '<=', now());
+            })
+            ->where(function ($inner) {
+                $inner->whereNull('expires_at')->orWhere('expires_at', '>=', now());
+            })
+            ->when($request->query('search'), function ($query, $search) {
+                $query->where(fn ($inner) => $inner
+                    ->where('title', 'like', "%{$search}%")
+                    ->orWhere('body', 'like', "%{$search}%"));
+            })
+            ->orderByDesc('published_at')
+            ->orderByDesc('created_at')
+            ->paginate((int) $request->query('per_page', 6))
+            ->through(function (Announcement $announcement) {
+                $announcement->setAttribute('is_expired', (bool) ($announcement->expires_at && $announcement->expires_at->isPast()));
+
+                return $announcement;
+            });
+
+        return response()->json($announcements);
+    }
+
     public function index(Request $request)
     {
         $user = $request->user();
@@ -57,6 +87,9 @@ class AnnouncementController extends Controller
                     })
                     ->where(function ($inner) {
                         $inner->whereNull('published_at')->orWhere('published_at', '<=', now());
+                    })
+                    ->where(function ($inner) {
+                        $inner->whereNull('expires_at')->orWhere('expires_at', '>=', now());
                     });
             })
             ->orderByDesc('published_at')
