@@ -1,4 +1,4 @@
-import { BookOpen, GraduationCap, LayoutDashboard, Megaphone, Menu } from 'lucide-react'
+import { BookOpen, FileSearch, Files, GraduationCap, LayoutDashboard, Megaphone, Menu } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import AppFooter from '../components/AppFooter'
@@ -9,6 +9,8 @@ import { useAuth } from '../context/AuthContext'
 const studentItems = [
   { label: 'Dashboard', to: '/student', icon: LayoutDashboard },
   { label: 'Announcements', to: '/student/announcements', icon: Megaphone },
+  { label: 'Research', to: '/student/research', icon: FileSearch },
+  { label: 'Documents', to: '/student/documents', icon: Files },
   { label: 'Shareea Records', to: '/student/shareea', icon: BookOpen },
   { label: 'Hifl Progress', to: '/student/hifl', icon: GraduationCap },
 ]

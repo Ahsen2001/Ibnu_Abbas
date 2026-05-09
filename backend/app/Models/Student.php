@@ -101,4 +101,14 @@ class Student extends Model
             ->withPivot('academic_year')
             ->withTimestamps();
     }
+
+    public function researchPapers()
+    {
+        return $this->hasMany(Research::class);
+    }
+
+    public function issuedDocuments()
+    {
+        return $this->hasMany(IssuedDocument::class);
+    }
 }

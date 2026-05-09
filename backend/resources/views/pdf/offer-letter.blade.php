@@ -1,136 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Offer Letter</title>
-    <style>
-        body {
-            font-family: DejaVu Sans, sans-serif;
-            color: #172126;
-            margin: 0;
-            padding: 0;
-        }
-        .watermark {
-            position: fixed;
-            top: 42%;
-            left: 10%;
-            width: 80%;
-            text-align: center;
-            font-size: 42px;
-            color: rgba(15, 118, 110, 0.08);
-            transform: rotate(-28deg);
-            z-index: -1;
-        }
-        .page {
-            padding: 40px 48px;
-        }
-        .header {
-            border-bottom: 3px solid #0f766e;
-            padding-bottom: 16px;
-            margin-bottom: 28px;
-        }
-        .logo {
-            width: 70px;
-            height: 70px;
-            border: 1px solid #cbd5e1;
-            text-align: center;
-            line-height: 70px;
-            font-size: 12px;
-            color: #64748b;
-            float: right;
-        }
-        h1 {
-            margin: 0;
-            font-size: 28px;
-            color: #0f766e;
-        }
-        h2 {
-            margin: 6px 0 0;
-            font-size: 16px;
-            color: #334155;
-            font-weight: normal;
-        }
-        .meta {
-            margin: 22px 0;
-            font-size: 13px;
-            color: #475569;
-        }
-        .meta td {
-            padding: 4px 10px 4px 0;
-        }
-        .content {
-            font-size: 14px;
-            line-height: 1.8;
-        }
-        .conditions {
-            margin-top: 22px;
-            padding-left: 18px;
-        }
-        .signature {
-            margin-top: 56px;
-        }
-        .signature-line {
-            width: 220px;
-            border-top: 1px solid #1f2937;
-            margin-top: 38px;
-            padding-top: 8px;
-            font-size: 13px;
-        }
-    </style>
-</head>
-<body>
-    <div class="watermark">IBNU ABBAS ARABIC COLLEGE</div>
-    <div class="page">
-        <div class="header">
-            <div class="logo">LOGO</div>
-            <h1>IBNU ABBAS ARABIC COLLEGE</h1>
-            <h2>Official Offer Letter</h2>
-        </div>
+@extends('pdf.layouts.college-document')
 
-        <table class="meta">
+@php($documentHeading = $documentHeading ?? 'Admission Offer Letter')
+@php($documentReference = $documentReference ?? $application->application_no)
+
+@section('content')
+    <div class="content-card">
+        <p>Dear {{ $application->applicant_name }},</p>
+
+        <p>
+            We are pleased to confirm that you have been selected for admission to
+            <strong>IBNU ABBAS ARABIC COLLEGE</strong> in the
+            <strong>{{ strtoupper($application->department) }}</strong> department.
+            This offer is issued based on the information supplied in your application and remains
+            subject to document verification and compliance with college regulations.
+        </p>
+
+        <table class="summary-table" style="margin-top: 16px;">
             <tr>
-                <td><strong>Application No:</strong></td>
+                <td class="label">Application Number</td>
                 <td>{{ $application->application_no }}</td>
+                <td class="label">Offer Date</td>
+                <td>{{ optional($application->offer_issued_at)->format('d M Y') ?: $generatedAt->format('d M Y') }}</td>
             </tr>
             <tr>
-                <td><strong>Offer Date:</strong></td>
-                <td>{{ optional($application->offer_issued_at ?? $generatedAt)->format('F d, Y') }}</td>
-            </tr>
-            <tr>
-                <td><strong>Department:</strong></td>
+                <td class="label">Applicant Name</td>
+                <td>{{ $application->applicant_name }}</td>
+                <td class="label">Department</td>
                 <td>{{ strtoupper($application->department) }}</td>
             </tr>
         </table>
 
-        <div class="content">
-            <p>Dear <strong>{{ $application->applicant_name }}</strong>,</p>
+        <div class="section-title">Conditions of Offer</div>
+        <ol style="margin: 0; padding-left: 18px;">
+            <li>Present all original certificates, identity documents, and guardian records during final admission.</li>
+            <li>Complete registration formalities and fee clearance within the time stated by the administration office.</li>
+            <li>Adhere to the academic, disciplinary, and attendance policies of the college from the first day of enrollment.</li>
+            <li>This offer may be withdrawn if any supplied information is found to be inaccurate or incomplete.</li>
+        </ol>
 
-            <p>
-                We are pleased to offer you provisional admission to <strong>IBNU ABBAS ARABIC COLLEGE</strong>
-                in the <strong>{{ strtoupper($application->department) }}</strong> program.
-            </p>
-
-            <p>
-                This offer is issued following review of your application and, where applicable,
-                completion of the admission interview process.
-            </p>
-
-            <p><strong>Conditions of Offer</strong></p>
-            <ol class="conditions">
-                <li>All submitted documents must be genuine and verifiable.</li>
-                <li>You must complete final registration within the time period stated by the college.</li>
-                <li>The college reserves the right to withdraw this offer if required academic or conduct standards are not met.</li>
-                <li>You must comply with all college regulations, attendance rules, and departmental requirements.</li>
-            </ol>
-
-            <p>
-                Please retain this letter for your records and present it during the enrollment process.
-            </p>
-        </div>
-
-        <div class="signature">
-            <div class="signature-line">Principal Signature</div>
-        </div>
+        <p style="margin-top: 18px;">
+            We look forward to welcoming you into the college community and pray that your studies
+            here become a source of knowledge, character, and service.
+        </p>
     </div>
-</body>
-</html>
+@endsection

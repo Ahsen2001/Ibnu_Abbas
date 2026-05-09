@@ -73,6 +73,11 @@ class Application extends Model
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
+    public function issuedDocuments()
+    {
+        return $this->hasMany(IssuedDocument::class);
+    }
+
     public function canBeEdited(): bool
     {
         return $this->status === self::STATUS_DRAFT

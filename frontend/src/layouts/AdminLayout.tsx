@@ -1,4 +1,4 @@
-import { Bell, BookOpen, CalendarDays, ClipboardCheck, FileCode2, FileText, GraduationCap, LayoutDashboard, Mail, Megaphone, Menu, Users } from 'lucide-react'
+import { Bell, BookOpen, CalendarDays, ClipboardCheck, FileCode2, FileSearch, FileText, Files, GraduationCap, Image, LayoutDashboard, Mail, Megaphone, Menu, PlayCircle, Users } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import AppFooter from '../components/AppFooter'
@@ -20,6 +20,13 @@ const adminItems = [
   { label: 'Email Logs', to: '/admin/email/logs', icon: FileText },
   { label: 'Templates', to: '/admin/email-templates', icon: FileCode2 },
   { label: 'Calendar', to: '/admin/calendar', icon: CalendarDays },
+  { label: 'Research', to: '/admin/research', icon: FileSearch },
+  { label: 'Documents', to: '/admin/documents', icon: Files },
+  { label: 'Gallery', to: '/admin/gallery', icon: Image },
+  { label: 'Publications', to: '/admin/publications', icon: BookOpen },
+  { label: 'Islamic Content', to: '/admin/islamic', icon: FileText },
+  { label: 'Guest Book', to: '/admin/guestbook', icon: Users },
+  { label: 'Videos', to: '/admin/videos', icon: PlayCircle },
 ]
 
 function AdminLayout() {

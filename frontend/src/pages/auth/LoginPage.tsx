@@ -14,27 +14,6 @@ type LocationState = {
   }
 }
 
-function resolvePostLoginPath(fromPath: string | undefined, fallbackPath: string) {
-  if (!fromPath) {
-    return fallbackPath
-  }
-
-  const blockedPaths = new Set([
-    '/unauthorized',
-    '/login',
-    '/register',
-    '/verify-otp',
-    '/forgot-password',
-    '/reset-password',
-  ])
-
-  if (blockedPaths.has(fromPath)) {
-    return fallbackPath
-  }
-
-  return fromPath
-}
-
 function LoginPage() {
   const { isAuthenticated, login, role } = useAuth()
   const [email, setEmail] = useState('')
@@ -73,7 +52,7 @@ function LoginPage() {
 
     try {
       const redirectPath = await login({ email, password })
-      navigate(resolvePostLoginPath(state?.from?.pathname, redirectPath), { replace: true })
+      navigate(state?.from?.pathname ?? redirectPath, { replace: true })
     } catch (error) {
       setFormError(getApiErrorMessage(error, 'Unable to login with those credentials.'))
     } finally {

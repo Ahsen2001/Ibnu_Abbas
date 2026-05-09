@@ -101,4 +101,44 @@ class User extends Authenticatable
     {
         return $this->hasMany(AcademicCalendar::class, 'created_by');
     }
+
+    public function researchReviews()
+    {
+        return $this->hasMany(Research::class, 'reviewed_by');
+    }
+
+    public function issuedDocuments()
+    {
+        return $this->hasMany(IssuedDocument::class, 'created_by');
+    }
+
+    public function galleryAlbums()
+    {
+        return $this->hasMany(GalleryAlbum::class, 'created_by');
+    }
+
+    public function publications()
+    {
+        return $this->hasMany(Publication::class, 'created_by');
+    }
+
+    public function islamicArticles()
+    {
+        return $this->hasMany(IslamicArticle::class, 'created_by');
+    }
+
+    public function islamicLectures()
+    {
+        return $this->hasMany(IslamicLecture::class, 'created_by');
+    }
+
+    public function guestEntries()
+    {
+        return $this->hasMany(GuestEntry::class, 'created_by');
+    }
+
+    public function videos()
+    {
+        return $this->hasMany(Video::class, 'created_by');
+    }
 }

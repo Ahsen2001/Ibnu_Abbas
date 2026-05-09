@@ -1,4 +1,4 @@
-import { BookOpen, ClipboardCheck, GraduationCap, LayoutDashboard, Megaphone, Menu, Users } from 'lucide-react'
+import { BookOpen, ClipboardCheck, FileSearch, Files, GraduationCap, LayoutDashboard, Megaphone, Menu, Users } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import AppFooter from '../components/AppFooter'
@@ -11,6 +11,8 @@ const teacherItems = [
   { label: 'Students', to: '/teacher/students', icon: Users },
   { label: 'Attendance', to: '/teacher/attendance', icon: ClipboardCheck },
   { label: 'Announcements', to: '/teacher/announcements', icon: Megaphone },
+  { label: 'Research', to: '/teacher/research', icon: FileSearch },
+  { label: 'Publications', to: '/teacher/publications', icon: Files },
   { label: 'Shareea', to: '/teacher/shareea', icon: BookOpen },
   { label: 'Hifl', to: '/teacher/hifl', icon: GraduationCap },
 ]

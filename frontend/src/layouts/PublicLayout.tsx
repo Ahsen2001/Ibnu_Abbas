@@ -10,7 +10,13 @@ function PublicLayout() {
           <Link className="text-college-ink" to="/">
             <AppLogo />
           </Link>
-          <nav className="flex items-center gap-2">
+          <nav className="flex flex-wrap items-center justify-end gap-2 text-sm">
+            <Link className="rounded-lg px-3 py-2 font-medium text-slate-600 transition hover:bg-slate-100 hover:text-college-ink" to="/gallery">Gallery</Link>
+            <Link className="rounded-lg px-3 py-2 font-medium text-slate-600 transition hover:bg-slate-100 hover:text-college-ink" to="/publications">Publications</Link>
+            <Link className="rounded-lg px-3 py-2 font-medium text-slate-600 transition hover:bg-slate-100 hover:text-college-ink" to="/islamic/articles">Articles</Link>
+            <Link className="rounded-lg px-3 py-2 font-medium text-slate-600 transition hover:bg-slate-100 hover:text-college-ink" to="/islamic/lectures">Lectures</Link>
+            <Link className="rounded-lg px-3 py-2 font-medium text-slate-600 transition hover:bg-slate-100 hover:text-college-ink" to="/guestbook">Guest Book</Link>
+            <Link className="rounded-lg px-3 py-2 font-medium text-slate-600 transition hover:bg-slate-100 hover:text-college-ink" to="/videos">Videos</Link>
             <Link className="btn-secondary" to="/login">Login</Link>
             <Link className="btn-primary" to="/register">Apply</Link>
           </nav>

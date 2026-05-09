@@ -8,19 +8,44 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CalendarController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\DepartmentController;
+use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\EmailController;
 use App\Http\Controllers\Api\EmailTemplateController;
+use App\Http\Controllers\Api\GalleryController;
+use App\Http\Controllers\Api\GuestBookController;
 use App\Http\Controllers\Api\HiflController;
+use App\Http\Controllers\Api\IslamicArticleController;
+use App\Http\Controllers\Api\IslamicLectureController;
+use App\Http\Controllers\Api\PublicationController;
+use App\Http\Controllers\Api\ResearchController;
 use App\Http\Controllers\Api\ShareeaController;
 use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\TeacherController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\VideoController;
 use App\Models\Role;
 use App\Models\Subject;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn () => ['status' => 'ok', 'app' => 'Ibnu Abbas Arabic College API']);
 Route::get('/public/announcements', [AnnouncementController::class, 'publicFeed']);
+Route::get('/gallery/albums', [GalleryController::class, 'index']);
+Route::get('/gallery/albums/{album}', [GalleryController::class, 'show']);
+Route::get('/publications/featured', [PublicationController::class, 'featured']);
+Route::get('/publications', [PublicationController::class, 'index']);
+Route::get('/publications/{publication}', [PublicationController::class, 'show']);
+Route::get('/publications/{publication}/download', [PublicationController::class, 'download']);
+Route::get('/islamic/articles/featured', [IslamicArticleController::class, 'featured']);
+Route::get('/islamic/articles/category/{cat}', [IslamicArticleController::class, 'byCategory']);
+Route::get('/islamic/articles', [IslamicArticleController::class, 'index']);
+Route::get('/islamic/articles/{article}', [IslamicArticleController::class, 'show']);
+Route::get('/islamic/lectures/featured', [IslamicLectureController::class, 'featured']);
+Route::get('/islamic/lectures', [IslamicLectureController::class, 'index']);
+Route::get('/islamic/lectures/{lecture}', [IslamicLectureController::class, 'show']);
+Route::get('/guestbook/public', [GuestBookController::class, 'public']);
+Route::get('/videos/featured', [VideoController::class, 'featured']);
+Route::get('/videos', [VideoController::class, 'index']);
+Route::get('/videos/{video}', [VideoController::class, 'show']);
 
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -41,6 +66,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/announcements/{announcement}/read', [AnnouncementController::class, 'markRead']);
     Route::get('/calendar', [CalendarController::class, 'index']);
     Route::get('/calendar/upcoming', [CalendarController::class, 'upcoming']);
+
+    Route::get('/research', [ResearchController::class, 'index']);
+    Route::get('/research/{research}', [ResearchController::class, 'show']);
+    Route::get('/research/{research}/download', [ResearchController::class, 'download']);
+
+    Route::get('/documents/application/{application}', [DocumentController::class, 'generateApplication']);
+    Route::get('/documents/offer-letter/{application}', [DocumentController::class, 'generateOfferLetter']);
 
     Route::prefix('admin')->middleware('role:admin')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index']);
@@ -104,6 +136,65 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/calendar', [CalendarController::class, 'store']);
         Route::put('/calendar/{calendar}', [CalendarController::class, 'update']);
         Route::delete('/calendar/{calendar}', [CalendarController::class, 'destroy']);
+
+        Route::post('/gallery/albums', [GalleryController::class, 'store']);
+        Route::put('/gallery/albums/{album}', [GalleryController::class, 'update']);
+        Route::delete('/gallery/albums/{album}', [GalleryController::class, 'destroy']);
+        Route::post('/gallery/albums/{album}/images', [GalleryController::class, 'uploadImages']);
+        Route::delete('/gallery/images/{image}', [GalleryController::class, 'deleteImage']);
+        Route::patch('/gallery/images/{image}/cover', [GalleryController::class, 'setCover']);
+        Route::patch('/gallery/albums/{album}/reorder', [GalleryController::class, 'reorder']);
+
+        Route::put('/publications/{publication}', [PublicationController::class, 'update']);
+        Route::delete('/publications/{publication}', [PublicationController::class, 'destroy']);
+
+        Route::post('/islamic/articles', [IslamicArticleController::class, 'store']);
+        Route::put('/islamic/articles/{article}', [IslamicArticleController::class, 'update']);
+        Route::delete('/islamic/articles/{article}', [IslamicArticleController::class, 'destroy']);
+
+        Route::post('/islamic/lectures', [IslamicLectureController::class, 'store']);
+        Route::put('/islamic/lectures/{lecture}', [IslamicLectureController::class, 'update']);
+        Route::delete('/islamic/lectures/{lecture}', [IslamicLectureController::class, 'destroy']);
+
+        Route::get('/guestbook', [GuestBookController::class, 'index']);
+        Route::post('/guestbook', [GuestBookController::class, 'store']);
+        Route::put('/guestbook/{guestEntry}', [GuestBookController::class, 'update']);
+        Route::delete('/guestbook/{guestEntry}', [GuestBookController::class, 'destroy']);
+
+        Route::post('/videos', [VideoController::class, 'store']);
+        Route::put('/videos/{video}', [VideoController::class, 'update']);
+        Route::delete('/videos/{video}', [VideoController::class, 'destroy']);
+    });
+
+    Route::middleware('role:admin,student')->group(function () {
+        Route::post('/research', [ResearchController::class, 'store']);
+    });
+
+    Route::middleware('role:admin,teacher')->group(function () {
+        Route::post('/publications', [PublicationController::class, 'store']);
+    });
+
+    Route::middleware('role:admin,student,teacher')->group(function () {
+        Route::get('/documents/biodata/{student}', [DocumentController::class, 'generateBiodata']);
+        Route::get('/documents/transcript/{student}', [DocumentController::class, 'generateTranscript']);
+    });
+
+    Route::middleware('role:admin,student')->group(function () {
+        Route::get('/documents/certificate/{student}/{type}', [DocumentController::class, 'generateCertificate']);
+    });
+
+    Route::middleware('role:admin,teacher')->group(function () {
+        Route::get('/documents/interview-list', [DocumentController::class, 'generateInterviewList']);
+    });
+
+    Route::middleware('role:admin')->group(function () {
+        Route::put('/research/{research}', [ResearchController::class, 'update']);
+        Route::delete('/research/{research}', [ResearchController::class, 'destroy']);
+        Route::patch('/research/{research}/approve', [ResearchController::class, 'approve']);
+        Route::patch('/research/{research}/reject', [ResearchController::class, 'reject']);
+
+        Route::get('/documents/issued', [DocumentController::class, 'issued']);
+        Route::post('/documents/upload', [DocumentController::class, 'upload']);
     });
 
     Route::middleware('role:applicant')->group(function () {
