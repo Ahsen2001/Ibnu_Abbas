@@ -56,7 +56,7 @@ export type StudentFilters = {
 
 export type StudentFormValues = {
   user_id?: number | null
-  application_id?: number | null
+  application_id?: string | number | null
   full_name: string
   date_of_birth?: string | null
   gender?: 'male' | 'female' | ''

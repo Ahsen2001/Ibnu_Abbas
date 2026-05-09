@@ -1,5 +1,6 @@
 import { Camera, Trash2, UploadCloud } from 'lucide-react'
 import { useEffect, useMemo, useRef } from 'react'
+import toast from 'react-hot-toast'
 import { studentService } from '../services/studentService'
 
 type PhotoUploadProps = {
@@ -11,6 +12,7 @@ type PhotoUploadProps = {
 
 function PhotoUpload({ file, existingPath, onChange, onRemoveExisting }: PhotoUploadProps) {
   const inputRef = useRef<HTMLInputElement | null>(null)
+  const maxPhotoBytes = 10 * 1024 * 1024
 
   const previewUrl = useMemo(() => {
     if (file) {
@@ -49,7 +51,17 @@ function PhotoUpload({ file, existingPath, onChange, onRemoveExisting }: PhotoUp
       <input
         accept=".jpg,.jpeg,.png,.webp,.bmp,.gif,.avif,.heic,.heif,image/*"
         className="hidden"
-        onChange={(event) => onChange(event.target.files?.[0] ?? null)}
+        onChange={(event) => {
+          const nextFile = event.target.files?.[0] ?? null
+
+          if (nextFile && nextFile.size > maxPhotoBytes) {
+            toast.error('Photo must be 10 MB or smaller.')
+            event.target.value = ''
+            return
+          }
+
+          onChange(nextFile)
+        }}
         ref={inputRef}
         type="file"
       />

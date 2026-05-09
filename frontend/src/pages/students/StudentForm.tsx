@@ -82,7 +82,7 @@ function StudentForm({ student, onSuccess, onCancel }: StudentFormProps) {
 
     const payload: StudentFormValues = {
       ...values,
-      application_id: values.application_id ? Number(values.application_id) : null,
+      application_id: values.application_id?.trim() ? values.application_id.trim() : null,
       date_of_birth: values.date_of_birth || null,
       gender: values.gender || '',
       enrollment_date: values.enrollment_date || null,

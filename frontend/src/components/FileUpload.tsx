@@ -1,5 +1,6 @@
 import { UploadCloud, X } from 'lucide-react'
 import { useRef } from 'react'
+import toast from 'react-hot-toast'
 
 type FileUploadProps = {
   files: File[]
@@ -11,10 +12,19 @@ type FileUploadProps = {
 
 function FileUpload({ files, existingFiles = [], progress, onChange, onRemoveExisting }: FileUploadProps) {
   const inputRef = useRef<HTMLInputElement | null>(null)
+  const maxDocumentBytes = 8 * 1024 * 1024
 
   const handleFileSelect = (selectedList: FileList | null) => {
     const selectedFiles = Array.from(selectedList ?? [])
     if (selectedFiles.length === 0) return
+
+    const oversized = selectedFiles.find((file) => file.size > maxDocumentBytes)
+
+    if (oversized) {
+      toast.error(`${oversized.name} is larger than 8 MB.`)
+      return
+    }
+
     onChange([...files, ...selectedFiles])
   }
 

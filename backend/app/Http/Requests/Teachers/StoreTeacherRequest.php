@@ -11,7 +11,7 @@ class StoreTeacherRequest extends FormRequest
         'nullable',
         'file',
         'mimes:jpg,jpeg,png,webp,bmp,gif,avif,heic,heif',
-        'max:5120',
+        'max:10240',
     ];
 
     public function authorize(): bool
@@ -42,6 +42,7 @@ class StoreTeacherRequest extends FormRequest
     {
         return [
             'photo.mimes' => 'The photo must be a JPG, PNG, WEBP, BMP, GIF, AVIF, HEIC, or HEIF image.',
+            'photo.max' => 'The photo must not be larger than 10 MB.',
         ];
     }
 }
