@@ -56,9 +56,8 @@ class StudentController extends Controller
 
     public function store(StoreStudentRequest $request)
     {
-        $application = $request->filled('application_id')
-            ? Application::findOrFail($request->validated('application_id'))
-            : null;
+        $application = $this->resolveApplicationFromReference($request->validated('application_id'));
+        $this->guardApplicationAvailability($application);
 
         $data = $this->buildStudentPayload($request, $application);
         $data['student_id'] = $this->generateStudentId($data['enrollment_date'] ?? null);
@@ -89,6 +88,13 @@ class StudentController extends Controller
     public function update(UpdateStudentRequest $request, Student $student)
     {
         $data = $request->validated();
+        $application = null;
+
+        if (array_key_exists('application_id', $data)) {
+            $application = $this->resolveApplicationFromReference($data['application_id']);
+            $this->guardApplicationAvailability($application, $student);
+            $data['application_id'] = $application?->id;
+        }
 
         if ($request->hasFile('photo')) {
             $this->deleteStoredFile($student->photo_path);
@@ -184,6 +190,42 @@ class StudentController extends Controller
         abort_if(empty($data['department']), 422, 'Department is required.');
 
         return $data;
+    }
+
+    private function resolveApplicationFromReference(null|string|int $reference): ?Application
+    {
+        if ($reference === null) {
+            return null;
+        }
+
+        $normalized = trim((string) $reference);
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        return Application::query()
+            ->when(is_numeric($normalized), fn ($query) => $query->orWhereKey((int) $normalized))
+            ->orWhere('application_no', $normalized)
+            ->firstOrFail();
+    }
+
+    private function guardApplicationAvailability(?Application $application, ?Student $student = null): void
+    {
+        if (! $application) {
+            return;
+        }
+
+        $existingStudent = Student::query()
+            ->where('application_id', $application->id)
+            ->when($student, fn ($query) => $query->whereKeyNot($student->id))
+            ->first();
+
+        abort_if(
+            $existingStudent !== null,
+            422,
+            "Application {$application->application_no} is already linked to student {$existingStudent->student_id}."
+        );
     }
 
     private function generateStudentId(?string $enrollmentDate): string

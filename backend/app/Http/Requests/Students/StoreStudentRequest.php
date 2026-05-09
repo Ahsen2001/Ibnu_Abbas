@@ -2,11 +2,19 @@
 
 namespace App\Http\Requests\Students;
 
+use App\Models\Application;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StoreStudentRequest extends FormRequest
 {
+    private const PHOTO_RULES = [
+        'nullable',
+        'file',
+        'mimes:jpg,jpeg,png,webp,bmp,gif,avif,heic,heif',
+        'max:5120',
+    ];
+
     public function authorize(): bool
     {
         return true;
@@ -16,7 +24,27 @@ class StoreStudentRequest extends FormRequest
     {
         return [
             'user_id' => ['nullable', 'exists:users,id'],
-            'application_id' => ['nullable', 'exists:applications,id', 'unique:students,application_id'],
+            'application_id' => [
+                'nullable',
+                'string',
+                'max:255',
+                function (string $attribute, mixed $value, \Closure $fail) {
+                    $reference = trim((string) $value);
+
+                    if ($reference === '') {
+                        return;
+                    }
+
+                    $exists = Application::query()
+                        ->whereKey(is_numeric($reference) ? (int) $reference : $reference)
+                        ->orWhere('application_no', $reference)
+                        ->exists();
+
+                    if (! $exists) {
+                        $fail('The selected application reference is invalid.');
+                    }
+                },
+            ],
             'full_name' => ['nullable', 'string', 'max:255'],
             'date_of_birth' => ['nullable', 'date'],
             'gender' => ['nullable', Rule::in(['male', 'female'])],
@@ -31,9 +59,16 @@ class StoreStudentRequest extends FormRequest
             'department' => ['nullable', Rule::in(['shareea', 'hifl'])],
             'enrollment_date' => ['nullable', 'date'],
             'status' => ['nullable', Rule::in(['active', 'inactive', 'graduated', 'withdrawn'])],
-            'photo' => ['nullable', 'image', 'max:5120'],
+            'photo' => self::PHOTO_RULES,
             'documents' => ['nullable', 'array'],
             'documents.*' => ['file', 'max:8192'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'photo.mimes' => 'The photo must be a JPG, PNG, WEBP, BMP, GIF, AVIF, HEIC, or HEIF image.',
         ];
     }
 }

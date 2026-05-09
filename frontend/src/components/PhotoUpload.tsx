@@ -43,11 +43,11 @@ function PhotoUpload({ file, existingPath, onChange, onRemoveExisting }: PhotoUp
           </div>
         )}
         <span className="text-sm font-semibold text-college-ink">Upload student photo</span>
-        <span className="mt-1 text-sm text-slate-500">Use a clear passport-style image for the ID card.</span>
+        <span className="mt-1 text-sm text-slate-500">Use a clear passport-style image. JPG, PNG, or WEBP works best.</span>
       </button>
 
       <input
-        accept=".jpg,.jpeg,.png"
+        accept=".jpg,.jpeg,.png,.webp,.bmp,.gif,.avif,.heic,.heif,image/*"
         className="hidden"
         onChange={(event) => onChange(event.target.files?.[0] ?? null)}
         ref={inputRef}

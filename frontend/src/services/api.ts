@@ -23,6 +23,12 @@ api.interceptors.request.use((config) => {
   activeRequestCount += 1
   emitNetworkActivity()
 
+  if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+    if (config.headers && 'Content-Type' in config.headers) {
+      delete config.headers['Content-Type']
+    }
+  }
+
   const token = localStorage.getItem(API_TOKEN_KEY)
 
   if (token) {

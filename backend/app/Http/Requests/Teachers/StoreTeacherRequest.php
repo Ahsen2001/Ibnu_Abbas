@@ -7,6 +7,13 @@ use Illuminate\Validation\Rule;
 
 class StoreTeacherRequest extends FormRequest
 {
+    private const PHOTO_RULES = [
+        'nullable',
+        'file',
+        'mimes:jpg,jpeg,png,webp,bmp,gif,avif,heic,heif',
+        'max:5120',
+    ];
+
     public function authorize(): bool
     {
         return true;
@@ -27,7 +34,14 @@ class StoreTeacherRequest extends FormRequest
             'joining_date' => ['nullable', 'date'],
             'department' => ['required', Rule::in(['shareea', 'hifl', 'both'])],
             'status' => ['nullable', Rule::in(['active', 'inactive', 'on_leave'])],
-            'photo' => ['nullable', 'image', 'max:5120'],
+            'photo' => self::PHOTO_RULES,
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'photo.mimes' => 'The photo must be a JPG, PNG, WEBP, BMP, GIF, AVIF, HEIC, or HEIF image.',
         ];
     }
 }

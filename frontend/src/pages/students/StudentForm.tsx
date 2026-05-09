@@ -135,8 +135,8 @@ function StudentForm({ student, onSuccess, onCancel }: StudentFormProps) {
               <span className="text-xs text-red-600">{form.formState.errors.full_name?.message}</span>
             </label>
             <label className="grid gap-2 text-sm font-medium text-slate-700">
-              Application ID
-              <input className="form-input" type="number" {...form.register('application_id')} />
+              Application Reference
+              <input className="form-input" placeholder="Database ID or application number" {...form.register('application_id')} />
             </label>
             <label className="grid gap-2 text-sm font-medium text-slate-700">
               Date of Birth
